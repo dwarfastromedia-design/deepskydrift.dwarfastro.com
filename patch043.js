@@ -1,22 +1,26 @@
-const PATCH_VERSION = 'v0.5.0';
+const PATCH_VERSION = 'v0.5.2';
 
 function applyPatch043Ui() {
   const versionLabel = document.querySelector('.ver');
   if (versionLabel) versionLabel.textContent = PATCH_VERSION;
 
   const headerLabel = document.querySelector('header em:not(#badge)');
-  if (headerLabel) headerLabel.textContent = 'simple creator UI';
+  if (headerLabel) headerLabel.textContent = 'smooth export';
 
   const warning = document.querySelector('.warn');
   if (warning) warning.textContent = 'iPad/Safari may export below full HD. Desktop Chrome or Edge is recommended for full-resolution video.';
 
   updExportInfo = function () {
     const d = dims();
-    $('exinfo').textContent = `Export target: ${d.w}×${d.h} at ~${FPS} fps · browser may downscale`;
+    $('exinfo').textContent = `Export target: ${d.w}×${d.h} at ${FPS} fps · browser may downscale`;
   };
 
   $('preset').oninput = updExportInfo;
   updExportInfo();
+}
+
+function waitMs(ms) {
+  return new Promise(resolve => setTimeout(resolve, Math.max(0, ms)));
 }
 
 async function exportPatched043() {
@@ -60,7 +64,7 @@ async function exportPatched043() {
   const track = stream.getVideoTracks()[0];
   const recorder = new MediaRecorder(stream, {
     mimeType,
-    videoBitsPerSecond: 16000000
+    videoBitsPerSecond: 18000000
   });
 
   const chunks = [];
@@ -69,29 +73,31 @@ async function exportPatched043() {
   };
 
   const done = new Promise(resolve => { recorder.onstop = resolve; });
+  const totalFrames = Math.max(1, Math.round(S.dur * FPS));
+  const frameMs = 1000 / FPS;
 
   prog('Exporting movie', 0, `${d.w}×${d.h} · ${S.dur}s · ${ext.toUpperCase()}`);
   recorder.start(250);
-  if (track.requestFrame) track.requestFrame();
 
   const start = performance.now();
-  const durationMs = S.dur * 1000;
+  for (let frame = 0; frame <= totalFrames; frame++) {
+    const targetTime = start + frame * frameMs;
+    const now = performance.now();
+    if (targetTime > now) await waitMs(targetTime - now);
 
-  await new Promise(resolve => {
-    function step(now) {
-      const t = cl((now - start) / durationMs, 0, 1);
-      draw(canvas, t, 'cover');
-      if (track.requestFrame) track.requestFrame();
-      prog('Exporting movie', Math.round(t * 100), `${Math.round(t * 100)}% · requested ${d.w}×${d.h} · ${ext.toUpperCase()}`);
-      if (t < 1) requestAnimationFrame(step);
-      else resolve();
+    const t = frame / totalFrames;
+    draw(canvas, t, 'cover');
+    if (track.requestFrame) track.requestFrame();
+
+    if (frame % 3 === 0 || frame === totalFrames) {
+      const pct = Math.round(t * 100);
+      prog('Exporting movie', pct, `${pct}% · fixed ${FPS} fps · requested ${d.w}×${d.h}`);
     }
-    requestAnimationFrame(step);
-  });
+  }
 
   draw(canvas, 1, 'cover');
   if (track.requestFrame) track.requestFrame();
-  await new Promise(resolve => setTimeout(resolve, 80));
+  await waitMs(120);
 
   recorder.stop();
   await done;
@@ -111,7 +117,7 @@ async function exportPatched043() {
   $('export').disabled = false;
   $('play').disabled = false;
   render(S.last);
-  st(`Download ready · requested ${d.w}×${d.h} · ${ext.toUpperCase()}`);
+  st(`Download ready · fixed ${FPS} fps · requested ${d.w}×${d.h}`);
 }
 
 applyPatch043Ui();

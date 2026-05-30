@@ -1,14 +1,14 @@
-const PATCH_VERSION = 'v0.4.3';
+const PATCH_VERSION = 'v0.5.0';
 
 function applyPatch043Ui() {
   const versionLabel = document.querySelector('.ver');
   if (versionLabel) versionLabel.textContent = PATCH_VERSION;
 
   const headerLabel = document.querySelector('header em:not(#badge)');
-  if (headerLabel) headerLabel.textContent = 'export frame fix';
+  if (headerLabel) headerLabel.textContent = 'simple creator UI';
 
   const warning = document.querySelector('.warn');
-  if (warning) warning.textContent = 'v0.4.3 · First-frame export fix, visible recorder canvas, and resolution diagnostics.';
+  if (warning) warning.textContent = 'iPad/Safari may export below full HD. Desktop Chrome or Edge is recommended for full-resolution video.';
 
   updExportInfo = function () {
     const d = dims();

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.4.2</span> <em>smooth export baseline</em></div><em id="badge">offline</em></header>
+<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.4.3</span> <em>export frame fix</em></div><em id="badge">offline</em></header>
 <div id="app">
 <main>
 <div class="view">
@@ -18,7 +18,7 @@
 <div class="status"><span id="status">Drop an image to begin</span><span id="dim"></span></div>
 </main>
 <aside>
-<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.4.2 · Local star reconstruction, stars-only sprites, and smoother timed export.</div></section>
+<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.4.3 · First-frame export fix, visible recorder canvas, and resolution diagnostics.</div></section>
 <section class="sec"><div class="ttl">Extraction</div>
 <div class="row"><div class="head"><span>Star Strictness</span><span id="sv" class="val">70%</span></div><input id="strict" type="range" min="30" max="95" value="70"></div>
 <div class="row"><div class="head"><span>Max Stars</span><span id="xv" class="val">2200</span></div><input id="max" type="range" min="300" max="7000" step="100" value="2200"></div>
@@ -31,11 +31,12 @@
 <div class="row"><div class="head"><span>Star Growth</span><span id="gv" class="val">0.12×</span></div><input id="grow" type="range" min="0" max="80" value="12"></div>
 <div class="row"><div class="head"><span>Background Zoom</span><span id="zv" class="val">5%</span></div><input id="zoom" type="range" min="0" max="16" value="5"></div>
 <div class="row"><div class="head"><span>Duration</span><span id="tv" class="val">10s</span></div><input id="dur" type="range" min="5" max="60" step="5" value="10"></div>
-<select id="preset"><option value="portrait">Portrait 1080×1920</option><option value="landscape">Landscape 1920×1080</option><option value="square">Square 1080×1080</option></select><p id="exinfo" class="tiny">Export target: 1080×1920 at ~30 fps</p></section>
+<select id="preset"><option value="portrait">Portrait 1080×1920</option><option value="landscape">Landscape 1920×1080</option><option value="square">Square 1080×1080</option></select><p id="exinfo" class="tiny">Export target: 1080×1920 at ~30 fps · browser may downscale</p></section>
 <section class="sec"><button id="play" disabled>▶ Play</button><button id="export" style="margin-top:8px" disabled>● Export Movie</button><button id="reset" style="margin-top:8px">Reset</button></section>
 </aside>
 </div>
 <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
 <script src="app.js"></script>
+<script src="patch043.js"></script>
 </body>
 </html>

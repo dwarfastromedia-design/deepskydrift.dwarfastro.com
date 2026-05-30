@@ -83,10 +83,68 @@ function wireUiButtons(root = document) {
   });
 }
 
+function addZoomTarget() {
+  const view = document.querySelector('.view');
+  const canvas = document.getElementById('main');
+  if (!view || !canvas) return;
+
+  let target = document.querySelector('.target');
+  if (!target) {
+    target = document.createElement('div');
+    target.className = 'target';
+    target.innerHTML = '<span class="dot"></span>';
+    view.appendChild(target);
+  }
+
+  let hint = document.querySelector('.targethint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.className = 'targethint';
+    hint.textContent = 'Tap image to set zoom center';
+    view.appendChild(hint);
+  }
+
+  function updateTarget() {
+    if (!S || !S.has) {
+      target.style.display = 'none';
+      hint.style.display = 'none';
+      return;
+    }
+    const cr = canvas.getBoundingClientRect();
+    const vr = view.getBoundingClientRect();
+    target.style.left = (cr.left - vr.left + S.cx * cr.width) + 'px';
+    target.style.top = (cr.top - vr.top + S.cy * cr.height) + 'px';
+    target.style.display = 'block';
+    hint.style.display = 'block';
+  }
+
+  const oldRender = render;
+  render = function(t) {
+    oldRender(t);
+    updateTarget();
+  };
+
+  view.addEventListener('pointerdown', event => {
+    if (!S || !S.src || event.target.closest('aside')) return;
+    const cr = canvas.getBoundingClientRect();
+    if (cr.width <= 0 || cr.height <= 0) return;
+    const x = (event.clientX - cr.left) / cr.width;
+    const y = (event.clientY - cr.top) / cr.height;
+    if (x < 0 || x > 1 || y < 0 || y > 1) return;
+    S.cx = Math.max(.04, Math.min(.96, x));
+    S.cy = Math.max(.04, Math.min(.96, y));
+    render(S.last || 0);
+    st('Zoom center set');
+  }, { passive: true });
+
+  window.addEventListener('resize', updateTarget);
+  updateTarget();
+}
+
 function transformToSimpleUi() {
-  document.querySelector('.ver') && (document.querySelector('.ver').textContent = 'v0.5.0');
+  document.querySelector('.ver') && (document.querySelector('.ver').textContent = 'v0.5.1');
   const subtitle = document.querySelector('header em:not(#badge)');
-  if (subtitle) subtitle.textContent = 'simple creator UI';
+  if (subtitle) subtitle.textContent = 'touch polish';
   const dropTitle = document.querySelector('#drop h1');
   if (dropTitle) dropTitle.textContent = 'Create a deep-sky motion video';
   const dropText = document.querySelector('#drop p');
@@ -211,6 +269,7 @@ function transformToSimpleUi() {
   uiActivate('style', 'cinematic');
   uiActivate('duration', '15');
   uiActivate('format', 'portrait');
+  addZoomTarget();
 }
 
 transformToSimpleUi();

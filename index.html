@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DeepSky Drift by DwarfAstro</title>
-<link rel="stylesheet" href="style.css?v=0.5.1">
+<link rel="stylesheet" href="style.css?v=0.5.4">
 </head>
 <body>
-<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.5.3</span> <em>integrated build</em></div><em id="badge">offline</em></header>
+<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.5.4</span> <em>analytics consent build</em></div><em id="badge">offline</em></header>
 <div id="app">
 <main>
 <div class="view">
@@ -18,7 +18,7 @@
 <div class="status"><span id="status">Drop an image to begin</span><span id="dim"></span></div>
 </main>
 <aside>
-<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.5.3 · Integrated app bundle.</div></section>
+<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.5.4 · Analytics consent build.</div></section>
 <section class="sec"><div class="ttl">Extraction</div>
 <div class="row"><div class="head"><span>Star Strictness</span><span id="sv" class="val">70%</span></div><input id="strict" type="range" min="30" max="95" value="70"></div>
 <div class="row"><div class="head"><span>Max Stars</span><span id="xv" class="val">2200</span></div><input id="max" type="range" min="300" max="7000" step="100" value="2200"></div>
@@ -36,6 +36,45 @@
 </aside>
 </div>
 <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
-<script src="app.js?v=0.5.3"></script>
+<div id="cookieConsent" class="cookie-consent" role="dialog" aria-live="polite" aria-label="Cookie consent"><div class="cookie-copy">🍪 This site uses Google Analytics to understand how people use DeepSkyDrift. No personal data is collected and your images never leave your device. Your choice is saved locally and you won't be asked again. You can change it anytime by clearing your browser data.</div><div class="cookie-actions"><button id="cookieDecline" class="secondary" type="button">Decline</button><button id="cookieAccept" class="primary" type="button">Accept</button></div></div>
+<script>
+(function(){
+  const GA_ID = 'G-FEZT7C1Y93';
+  const CONSENT_KEY = 'deepskydrift_ga_consent';
+  function getConsent(){ try { return localStorage.getItem(CONSENT_KEY); } catch(e) { return null; } }
+  function setConsent(value){ try { localStorage.setItem(CONSENT_KEY, value); } catch(e) {} }
+  function loadGA(){
+    if (window.gtag) return;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', GA_ID, { anonymize_ip: true });
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_ID);
+    document.head.appendChild(s);
+  }
+  window.trackGA4 = function(eventName, params = {}){
+    try {
+      if (getConsent() !== 'accepted') return;
+      if (!window.gtag) return;
+      window.gtag('event', eventName, params || {});
+    } catch(e) {}
+  };
+  function showBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.add('show'); }
+  function hideBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.remove('show'); }
+  document.addEventListener('DOMContentLoaded', function(){
+    const consent = getConsent();
+    if (consent === 'accepted') { loadGA(); return; }
+    if (consent === 'declined') return;
+    setTimeout(showBanner, 700);
+    const accept = document.getElementById('cookieAccept');
+    const decline = document.getElementById('cookieDecline');
+    if (accept) accept.addEventListener('click', function(){ setConsent('accepted'); hideBanner(); loadGA(); });
+    if (decline) decline.addEventListener('click', function(){ setConsent('declined'); hideBanner(); });
+  });
+})();
+</script>
+<script src="app.js?v=0.5.4"></script>
 </body>
 </html>

@@ -1,273 +1,37 @@
 (function(){
-  const VERSION = 'v0.6.2';
-  const HARD_MOVE_CAP = 500;
-  const $ = (id) => document.getElementById(id);
-
-  function hasAppState(){
-    try { return typeof S !== 'undefined' && S && typeof S === 'object'; } catch(e) { return false; }
-  }
-
-  function isIOSLikeSafari(){
-    const ua = navigator.userAgent || '';
-    const iPad = /iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    const iPhone = /iPhone|iPod/.test(ua);
-    return (iPad || iPhone) && /WebKit/.test(ua) && !/CriOS|FxiOS/.test(ua);
-  }
-
-  function getRawDims(){
-    const preset = $('preset') && $('preset').value;
-    if (preset === 'portrait') return { w: 1080, h: 1920, l: '9x16' };
-    if (preset === 'landscape') return { w: 1920, h: 1080, l: '16x9' };
-    return { w: 1080, h: 1080, l: '1x1' };
-  }
-
-  function getPerformanceDims(d){
-    if (!isIOSLikeSafari()) return d;
-    if (d.w === 1920 && d.h === 1080) return { w: 1280, h: 720, l: d.l };
-    if (d.w === 1080 && d.h === 1920) return { w: 720, h: 1280, l: d.l };
-    return { w: 900, h: 900, l: d.l };
-  }
-
-  function patchDims(){
-    try {
-      if (typeof dims !== 'function' || window.__deepSkyDriftDimsTuned) return;
-      window.__deepSkyDriftDimsTuned = true;
-      const originalDims = dims;
-      dims = function(){ return getPerformanceDims(originalDims()); };
-    } catch(e) {}
-  }
-
-  function updateExportNote(){
-    const exinfo = $('exinfo');
-    if (!exinfo) return;
-    const raw = getRawDims();
-    const perf = getPerformanceDims(raw);
-    const note = raw.w !== perf.w || raw.h !== perf.h
-      ? ` · performance export ${perf.w}×${perf.h} on iPad/Safari`
-      : '';
-    exinfo.textContent = `Export target: ${raw.w}×${raw.h} at 30 fps${note}`;
-  }
-
-  function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
-  function ease(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
-
-  function previewCanvas(){ return $('main'); }
-  function sourceImage(){ return hasAppState() ? (S.starless || S.src) : null; }
-
-  function sourceRectFor(img, outW, outH, t, fit){
-    const zoom = (fit === 'cover' || fit === 'contain') ? 1 + (S.zoom || 0) * ease(t || 0) : 1;
-    const imageAspect = img.width / img.height;
-    const outAspect = outW / outH;
-    let baseW, baseH;
-
-    if (imageAspect > outAspect) {
-      baseH = img.height;
-      baseW = baseH * outAspect;
-    } else {
-      baseW = img.width;
-      baseH = baseW / outAspect;
-    }
-
-    const sw = baseW / zoom;
-    const sh = baseH / zoom;
-    const ax = clamp((S.cx == null ? 0.5 : S.cx) * img.width, 0, img.width);
-    const ay = clamp((S.cy == null ? 0.5 : S.cy) * img.height, 0, img.height);
-    const sx = clamp(ax - sw / 2, 0, Math.max(0, img.width - sw));
-    const sy = clamp(ay - sh / 2, 0, Math.max(0, img.height - sh));
-    return { sx, sy, sw, sh, zoom, ax, ay };
-  }
-
-  function mapSourceToCanvas(x, y, rect, outW, outH){
-    return {
-      x: ((x - rect.sx) / rect.sw) * outW,
-      y: ((y - rect.sy) / rect.sh) * outH
-    };
-  }
-
-  function scoreStar(s){
-    return (s.score || 0) + (s.peak || 0) * 2 + (s.iso || 0) * 0.1 + (s.r || 0) * 0.1 + (s.mscore || 0) * 0.5;
-  }
-
-  function optimizeMotionLayer(){
-    if (!hasAppState()) return false;
-    const pool = Array.isArray(S.stars) ? S.stars.slice() : [];
-    if (!pool.length) return false;
-    let desired = Number(($('move') && $('move').value) || S.move || 260);
-    desired = Math.min(desired, HARD_MOVE_CAP, pool.length);
-    const source = Array.isArray(S.movers) && S.movers.length ? S.movers.slice() : pool;
-    S.movers = source.sort((a,b) => scoreStar(b) - scoreStar(a)).slice(0, desired);
-    S.statics = [];
-    S.move = desired;
-    if ($('mv')) $('mv').textContent = String(desired);
-    if ($('stats')) {
-      $('stats').style.display = 'block';
-      $('stats').textContent = `${pool.length} stars detected · ${S.movers.length} animated · 0 static`;
-    }
-    if ($('badge')) $('badge').textContent = `${VERSION} · source-anchored render`;
-    return true;
-  }
-
-  function drawMotionStars(ctx, outW, outH, rect, t){
-    if (!hasAppState() || !Array.isArray(S.movers) || !S.movers.length || !S.src) return;
-    const e = ease(t || 0);
-    const ax = (S.cx == null ? 0.5 : S.cx) * S.src.width;
-    const ay = (S.cy == null ? 0.5 : S.cy) * S.src.height;
-
-    for (const s of S.movers) {
-      if (!s || !s.sp) continue;
-      const depth = Math.max(0.25, Math.min(1.85, s.mscore || scoreStar(s) || 1));
-      const push = 1 + (S.fly || 0) * 0.34 * depth * e;
-      const sx = ax + (s.x - ax) * push;
-      const sy = ay + (s.y - ay) * push;
-      const p = mapSourceToCanvas(sx, sy, rect, outW, outH);
-      if (p.x < -120 || p.y < -120 || p.x > outW + 120 || p.y > outH + 120) continue;
-      const baseScale = outW / rect.sw;
-      const growth = 1 + (S.grow || 0) * 0.55 * depth * e;
-      const scale = baseScale * growth;
-      ctx.drawImage(s.sp, p.x - s.ax * scale, p.y - s.ay * scale, s.w * scale, s.h * scale);
-    }
-  }
-
-  function tunedDraw(canvas, t, fit){
-    if (!hasAppState() || !S.src || !canvas) return;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.clearRect(0,0,w,h);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
-    const mode = S.preview || 'final';
-    let img;
-    if (mode === 'mask') img = S.mask && S.mask.canvas ? S.mask.canvas : S.src;
-    else if (mode === 'stars') img = S.starsOnly || S.src;
-    else if (mode === 'starless') img = S.starless || S.src;
-    else img = sourceImage();
-    if (!img) return;
-
-    const rect = sourceRectFor(img, w, h, mode === 'final' ? t : 0, fit || 'contain');
-    ctx.drawImage(img, rect.sx, rect.sy, rect.sw, rect.sh, 0, 0, w, h);
-
-    if (mode === 'moving') {
-      ctx.clearRect(0,0,w,h);
-      drawMotionStars(ctx, w, h, sourceRectFor(S.src, w, h, 0, fit || 'contain'), 0);
-    } else if (mode === 'final') {
-      if (Array.isArray(S.statics)) S.statics = [];
-      drawMotionStars(ctx, w, h, rect, t || 0);
-    }
-  }
-
-  function updateTargetReticle(){
-    if (!hasAppState() || !S.src) return;
-    const target = document.querySelector('.target');
-    const c = previewCanvas();
-    const view = document.querySelector('.view');
-    if (!target || !c || !view) return;
-    if ((S.preview || 'final') !== 'final') { target.style.display = 'none'; return; }
-    const img = sourceImage();
-    if (!img) return;
-    const rect = sourceRectFor(img, c.width, c.height, S.last || 0, 'contain');
-    const mapped = mapSourceToCanvas((S.cx || 0.5) * img.width, (S.cy || 0.5) * img.height, rect, c.width, c.height);
-    const cr = c.getBoundingClientRect();
-    const vr = view.getBoundingClientRect();
-    target.style.left = `${cr.left - vr.left + mapped.x}px`;
-    target.style.top = `${cr.top - vr.top + mapped.y}px`;
-    target.style.display = 'block';
-  }
-
-  function tunedRender(t){
-    if (!hasAppState() || !S.src) return;
-    try { if (typeof size === 'function') size(S.src.width, S.src.height); } catch(e) {}
-    const c = previewCanvas();
-    tunedDraw(c, t || 0, 'contain');
-    S.last = t || 0;
-    updateTargetReticle();
-  }
-
-  function setAnchorFromPointer(ev){
-    if (!hasAppState() || !S.src) return;
-    const c = previewCanvas();
-    if (!c) return;
-    const img = sourceImage();
-    if (!img) return;
-    const cr = c.getBoundingClientRect();
-    const x = (ev.clientX - cr.left) / cr.width;
-    const y = (ev.clientY - cr.top) / cr.height;
-    if (x < 0 || x > 1 || y < 0 || y > 1) return;
-    const rect = sourceRectFor(img, c.width, c.height, S.last || 0, 'contain');
-    S.cx = clamp((rect.sx + x * rect.sw) / img.width, 0.02, 0.98);
-    S.cy = clamp((rect.sy + y * rect.sh) / img.height, 0.02, 0.98);
-    if (typeof ev.stopImmediatePropagation === 'function') ev.stopImmediatePropagation();
-    if (typeof ev.preventDefault === 'function') ev.preventDefault();
-    tunedRender(S.last || 0);
-    const status = $('status');
-    if (status) status.textContent = 'Zoom center locked to source target';
-  }
-
-  async function waitForExtraction(timeoutMs){
-    const start = Date.now();
-    while (Date.now() - start < timeoutMs) {
-      if (hasAppState() && S.starless && S.starsOnly && Array.isArray(S.stars) && S.stars.length) return true;
-      await new Promise(r => setTimeout(r, 120));
-    }
-    return false;
-  }
-
-  function hookBuild(){
-    const btn = $('build');
-    if (!btn || btn.dataset.motionTunedV062) return;
-    btn.dataset.motionTunedV062 = '1';
-    btn.addEventListener('click', function(){
-      setTimeout(async function(){
-        if (await waitForExtraction(20000)) {
-          optimizeMotionLayer();
-          tunedRender(0);
-        }
-      }, 80);
-    });
-  }
-
-  function hookPointer(){
-    const view = document.querySelector('.view');
-    if (!view || view.dataset.sourceAnchorHook) return;
-    view.dataset.sourceAnchorHook = '1';
-    view.addEventListener('pointerdown', setAnchorFromPointer, true);
-  }
-
-  function installRenderOverride(){
-    try { draw = tunedDraw; } catch(e) {}
-    try { render = tunedRender; } catch(e) {}
-    try { target = updateTargetReticle; } catch(e) {}
-    patchDims();
-    updateExportNote();
-    const ver = document.querySelector('.ver');
-    if (ver) ver.textContent = VERSION;
-    if ($('badge')) $('badge').textContent = `${VERSION} · stable zoom`;
-  }
-
-  function hookControls(){
-    const play = $('play');
-    const exportBtn = $('export');
-    const preset = $('preset');
-    if (play && !play.dataset.motionTunedV062) {
-      play.dataset.motionTunedV062 = '1';
-      play.addEventListener('click', function(){ if (hasAppState()) S.statics = []; }, true);
-    }
-    if (exportBtn && !exportBtn.dataset.motionTunedV062) {
-      exportBtn.dataset.motionTunedV062 = '1';
-      exportBtn.addEventListener('click', function(){ if (hasAppState()) S.statics = []; patchDims(); updateExportNote(); }, true);
-    }
-    if (preset && !preset.dataset.motionTunedV062) {
-      preset.dataset.motionTunedV062 = '1';
-      preset.addEventListener('change', updateExportNote);
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    installRenderOverride();
-    hookBuild();
-    hookPointer();
-    hookControls();
-  });
+  const VERSION='v0.6.3';
+  const $=id=>document.getElementById(id);
+  const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  function ok(){try{return typeof S!=='undefined'&&S&&S.src}catch(e){return false}}
+  function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+  function stopPreview(){try{S.play=0;cancelAnimationFrame(S.raf);$('play').textContent='▶ Play'}catch(e){}}
+  function ui(t,p,l){let o=$('ol');if(o)o.style.display='grid';if($('olt'))$('olt').textContent=t;if($('fill'))$('fill').style.width=cl(p,0,100)+'%';if($('oll'))$('oll').textContent=l||'';if($('status'))$('status').textContent=l||t}
+  function hide(){if($('ol'))$('ol').style.display='none'}
+  function ios(){let u=navigator.userAgent||'',i=/iPad/.test(u)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),p=/iPhone|iPod/.test(u);return(i||p)&&/WebKit/.test(u)&&!/CriOS|FxiOS/.test(u)}
+  function rawDims(){let v=$('preset')&&$('preset').value;return v==='landscape'?{w:1920,h:1080,l:'16x9'}:v==='square'?{w:1080,h:1080,l:'1x1'}:{w:1080,h:1920,l:'9x16'}}
+  function perfDims(d){if(!ios())return d;if(d.w===1920)return{w:1280,h:720,l:d.l};if(d.h===1920)return{w:720,h:1280,l:d.l};return{w:900,h:900,l:d.l}}
+  function patchDims(){try{if(typeof dims==='function'&&!window.__dsd_dims_063){let old=dims;dims=function(){return perfDims(old())};window.__dsd_dims_063=1}}catch(e){}}
+  function exportNote(){let e=$('exinfo');if(!e)return;let r=rawDims(),d=perfDims(r),n=(r.w!==d.w||r.h!==d.h)?` · performance export ${d.w}×${d.h} on iPad/Safari`:'';e.textContent=`Export target: ${r.w}×${r.h} at 30 fps${n}`}
+  function blur(a,W,H,r){let t=new Float32Array(W*H),o=new Float32Array(W*H),w=2*r+1;for(let y=0;y<H;y++){let s=0;for(let x=-r;x<=r;x++)s+=a[y*W+cl(x,0,W-1)];for(let x=0;x<W;x++){t[y*W+x]=s/w;s+=a[y*W+cl(x+r+1,0,W-1)]-a[y*W+cl(x-r,0,W-1)]}}for(let x=0;x<W;x++){let s=0;for(let y=-r;y<=r;y++)s+=t[cl(y,0,H-1)*W+x];for(let y=0;y<H;y++){o[y*W+x]=s/w;s+=t[cl(y+r+1,0,H-1)*W+x]-t[cl(y-r,0,H-1)*W+x]}}return o}
+  function pct(a,p){let b=Array.from(a).sort((x,y)=>x-y);return b[Math.floor(b.length*p)]||0}
+  function detectStars(src){let W=Math.max(64,src.width/2|0),H=Math.max(64,src.height/2|0),c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').drawImage(src,0,0,W,H);let d=c.getContext('2d').getImageData(0,0,W,H).data,L=new Float32Array(W*H);for(let i=0;i<W*H;i++)L[i]=(.2126*d[i*4]+.7152*d[i*4+1]+.0722*d[i*4+2])/255;let bg=blur(L,W,H,18),b1=blur(L,W,H,1),b3=blur(L,W,H,3),D=new Float32Array(W*H),R=new Float32Array(W*H),s=0,s2=0;for(let i=0;i<D.length;i++){R[i]=Math.max(0,L[i]-bg[i]);D[i]=Math.max(0,b1[i]-b3[i]);s+=D[i];s2+=D[i]*D[i]}let m=s/D.length,rms=Math.sqrt(Math.max(1e-8,s2/D.length-m*m)),th=m+rms*(.45+(S.strict||.7)*1.7),ext=pct(bg,.72),vis=new Uint8Array(W*H),dirs=[1,-1,W,-W,W+1,W-1,-W+1,-W-1],out=[];for(let i=0;i<W*H;i++){if(vis[i]||D[i]<th)continue;let q=[i],pts=[];vis[i]=1;while(q.length){let p=q.pop();pts.push(p);let x=p%W,y=p/W|0;for(let dd of dirs){let n=p+dd,nx=n%W,ny=n/W|0;if(n<0||n>=W*H||vis[n]||Math.abs(nx-x)>1||Math.abs(ny-y)>1)continue;if(D[n]>=th*.42){vis[n]=1;q.push(n)}}}let area=pts.length;if(area<1||area>260)continue;let sx=0,sy=0,fl=0,pk=0,minx=W,maxx=0,miny=H,maxy=0,bgs=0;for(let p of pts){let x=p%W,y=p/W|0,v=R[p];sx+=x*v;sy+=y*v;fl+=v;pk=Math.max(pk,R[p]);bgs+=bg[p];minx=Math.min(minx,x);maxx=Math.max(maxx,x);miny=Math.min(miny,y);maxy=Math.max(maxy,y)}if(fl<=0)continue;let cx=sx/fl,cy=sy/fl,bw=maxx-minx+1,bh=maxy-miny+1,asp=Math.max(bw,bh)/Math.max(1,Math.min(bw,bh)),rad=Math.sqrt(area/Math.PI);if(asp>2.6||rad>8.5||pk<th*.75)continue;if(bgs/area>ext&&pk<th*1.05)continue;let ring=0,rn=0,rr=Math.max(4,rad*3.1);for(let yy=Math.floor(cy-rr);yy<=cy+rr;yy++)for(let xx=Math.floor(cx-rr);xx<=cx+rr;xx++){if(xx<0||yy<0||xx>=W||yy>=H)continue;let dist=Math.hypot(xx-cx,yy-cy);if(dist>rad*1.5&&dist<rr){ring+=L[yy*W+xx];rn++}}let iso=pk/Math.max(1e-6,(rn?ring/rn:0)+rms*.08),score=pk*.9+Math.sqrt(fl)*.7+rad*.45+iso*.25;out.push({x:cx*2,y:cy*2,r:Math.max(1.15,rad*2),peak:pk,flux:fl,iso,score,mscore:score,large:pk>.22||rad>2.2})}out.sort((a,b)=>b.score-a.score);return out.slice(0,Math.max(300,S.max||2200))}
+  function mask(src,stars){let W=src.width,H=src.height,a=new Float32Array(W*H);for(let st of stars){let boost=1+cl((st.peak-.1)*3,0,.9),r=Math.max(3.2,st.r*(S.rad||2.8)*boost);for(let y=Math.floor(st.y-r);y<=st.y+r;y++)for(let x=Math.floor(st.x-r);x<=st.x+r;x++){if(x<0||y<0||x>=W||y>=H)continue;let dist=Math.hypot(x-st.x,y-st.y);if(dist>r)continue;let v=1-cl((dist-r*.15)/(r*.85),0,1);v=v*v*(3-2*v);let k=y*W+x;if(v>a[k])a[k]=v}}let b=new Float32Array(a);for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)m=Math.max(m,a[cl(y+dy,0,H-1)*W+cl(x+dx,0,W-1)]);b[y*W+x]=m}let c=document.createElement('canvas');c.width=W;c.height=H;let id=c.getContext('2d').createImageData(W,H),p=id.data;for(let i=0;i<b.length;i++){let v=b[i]*255|0,k=i*4;p[k]=p[k+1]=p[k+2]=v;p[k+3]=255}c.getContext('2d').putImageData(id,0,0);return{a:b,canvas:c}}
+  function fitPlane(samples){let n=samples.length;if(n<6){let r=0,g=0,b=0;for(let s of samples){r+=s.r;g+=s.g;b+=s.b}return{r:[r/Math.max(1,n),0,0],g:[g/Math.max(1,n),0,0],b:[b/Math.max(1,n),0,0]}}let M=[[0,0,0],[0,0,0],[0,0,0]],R=[0,0,0],G=[0,0,0],B=[0,0,0];for(let s of samples){let X=s.x,Y=s.y;M[0][0]++;M[0][1]+=X;M[0][2]+=Y;M[1][0]+=X;M[1][1]+=X*X;M[1][2]+=X*Y;M[2][0]+=Y;M[2][1]+=X*Y;M[2][2]+=Y*Y;R[0]+=s.r;R[1]+=X*s.r;R[2]+=Y*s.r;G[0]+=s.g;G[1]+=X*s.g;G[2]+=Y*s.g;B[0]+=s.b;B[1]+=X*s.b;B[2]+=Y*s.b}function sol(V){let a=M[0][0],b=M[0][1],c=M[0][2],d=M[1][0],e=M[1][1],f=M[1][2],g=M[2][0],h=M[2][1],i=M[2][2],A=e*i-f*h,D=-(d*i-f*g),J=d*h-e*g,det=a*A+b*D+c*J;if(Math.abs(det)<1e-6)return[V[0]/Math.max(1,a),0,0];let C=-(b*i-c*h),F=a*i-c*g,I=-(a*h-b*g),E=b*f-c*e,H=-(a*f-c*d),K=a*e-b*d;return[(A*V[0]+C*V[1]+E*V[2])/det,(D*V[0]+F*V[1]+H*V[2])/det,(J*V[0]+I*V[1]+K*V[2])/det]}return{r:sol(R),g:sol(G),b:sol(B)}}
+  function starless(src,msk,stars){let W=src.width,H=src.height,c=document.createElement('canvas');c.width=W;c.height=H;let ctx=c.getContext('2d');ctx.drawImage(src,0,0);let id=ctx.getImageData(0,0,W,H),p=id.data,orig=new Uint8ClampedArray(p);for(let st of stars){let boost=1+cl((st.peak-.1)*3,0,.9),r=Math.max(3.2,st.r*(S.rad||2.8)*boost),r1=r*1.02,r2=r*(st.large?3.25:2.75),samples=[];for(let yy=Math.floor(st.y-r2);yy<=st.y+r2;yy+=2)for(let xx=Math.floor(st.x-r2);xx<=st.x+r2;xx+=2){if(xx<0||yy<0||xx>=W||yy>=H)continue;let dist=Math.hypot(xx-st.x,yy-st.y);if(dist<r1||dist>r2||msk.a[yy*W+xx]>.05)continue;let k=(yy*W+xx)*4;samples.push({x:xx-st.x,y:yy-st.y,r:orig[k],g:orig[k+1],b:orig[k+2]})}if(samples.length<6)continue;let pl=fitPlane(samples);for(let yy=Math.floor(st.y-r);yy<=st.y+r;yy++)for(let xx=Math.floor(st.x-r);xx<=st.x+r;xx++){if(xx<0||yy<0||xx>=W||yy>=H)continue;let dist=Math.hypot(xx-st.x,yy-st.y);if(dist>r)continue;let idx=yy*W+xx,a=msk.a[idx];if(a<=0)continue;let X=xx-st.x,Y=yy-st.y,k=idx*4,rr=cl(pl.r[0]+pl.r[1]*X+pl.r[2]*Y,0,255),gg=cl(pl.g[0]+pl.g[1]*X+pl.g[2]*Y,0,255),bb=cl(pl.b[0]+pl.b[1]*X+pl.b[2]*Y,0,255);p[k]=p[k]*(1-a)+rr*a;p[k+1]=p[k+1]*(1-a)+gg*a;p[k+2]=p[k+2]*(1-a)+bb*a}}ctx.putImageData(id,0,0);return c}
+  function starsOnly(src,bg,msk){let W=src.width,H=src.height,c=document.createElement('canvas');c.width=W;c.height=H;let o=src.getContext('2d').getImageData(0,0,W,H).data,b=bg.getContext('2d').getImageData(0,0,W,H).data,x=c.getContext('2d'),id=x.createImageData(W,H),p=id.data;for(let i=0;i<W*H;i++){let k=i*4,dr=Math.max(0,o[k]-b[k]),dg=Math.max(0,o[k+1]-b[k+1]),db=Math.max(0,o[k+2]-b[k+2]),lum=.2126*dr+.7152*dg+.0722*db;if(lum>2||msk.a[i]>.04){p[k]=dr;p[k+1]=dg;p[k+2]=db;p[k+3]=255}}x.putImageData(id,0,0);return c}
+  function score(st){let base=(st.score||0)+(st.peak||0)*2+(st.iso||0)*.1+(st.r||0)*.15;if(S.bias==='bright')return(st.peak||0)*4+(st.flux||0)*.4+(st.iso||0)*.08;if(S.bias==='size')return(st.r||0)*2.2+(st.peak||0)*1.4+(st.iso||0)*.06;if(S.bias==='isolated')return(st.iso||0)*2.4+(st.peak||0)*1.2+(st.r||0)*.2;return base}
+  function sprite(layer,st){let pad=Math.ceil(Math.max(8,st.r*3.2)),x0=cl(Math.floor(st.x-pad),0,layer.width-1),y0=cl(Math.floor(st.y-pad),0,layer.height-1),x1=cl(Math.ceil(st.x+pad),0,layer.width),y1=cl(Math.ceil(st.y+pad),0,layer.height),w=Math.max(1,x1-x0),h=Math.max(1,y1-y0),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(layer,x0,y0,w,h,0,0,w,h);return{...st,sp:c,ax:st.x-x0,ay:st.y-y0,w,h,depth:cl(.8+(st.peak||0)*2+(st.r||0)*.08+(st.iso||0)*.04,.8,2.1)}}
+  function choose(stars){let desired=Math.min(+(($('move')||{}).value||S.move||260),stars.length),rank=stars.slice().sort((a,b)=>score(b)-score(a)),sel=[],spacing=Math.max(8,Math.min(S.src.width,S.src.height)/65);for(let st of rank){if(sel.length>=desired)break;let ok=1;for(let t of sel)if(Math.hypot(st.x-t.x,st.y-t.y)<Math.max(spacing,(st.r+t.r)*1.15)){ok=0;break}if(ok)sel.push(st)}for(let st of rank){if(sel.length>=desired)break;if(!sel.includes(st))sel.push(st)}return sel}
+  async function tunedBuild(){if(!ok())return;stopPreview();let btn=$('build');if(btn)btn.disabled=1;ui('Extracting stars',4,'Stopping preview and reading image…');await sleep(20);ui('Extracting stars',18,'Detecting full star field…');let stars=detectStars(S.src);if(!stars.length){hide();if(btn)btn.disabled=0;if($('status'))$('status').textContent='No stars found. Lower cleaner-stars strictness.';return}await sleep(20);ui('Extracting stars',38,'Building all-stars removal mask…');S.mask=mask(S.src,stars);await sleep(20);ui('Extracting stars',58,'Creating true starless background plate…');S.starless=starless(S.src,S.mask,stars);await sleep(20);ui('Extracting stars',74,'Creating stars-only residual layer…');S.starsOnly=starsOnly(S.src,S.starless,S.mask);await sleep(20);ui('Extracting stars',88,'Selecting moving stars from stars-only layer…');let selected=choose(stars);S.stars=stars;S.movers=selected.map(s=>sprite(S.starsOnly,s));S.statics=[];S.move=selected.length;S.map=1;if($('mv'))$('mv').textContent=selected.length;if($('stats')){$('stats').style.display='block';$('stats').textContent=`${stars.length} stars removed · ${selected.length} moving stars · starless background active`}let top=selected.slice(0,Math.min(30,selected.length));if(top.length){S.cx=cl(top.reduce((a,b)=>a+b.x,0)/top.length/S.src.width,.04,.96);S.cy=cl(top.reduce((a,b)=>a+b.y,0)/top.length/S.src.height,.04,.96)}ui('Extracting stars',100,'Ready');await sleep(30);hide();if(btn){btn.disabled=0;btn.textContent='Re-extract Stars'}if($('play'))$('play').disabled=0;if($('export'))$('export').disabled=0;if($('badge'))$('badge').textContent=`${VERSION} · true starless pipeline`;let v=document.querySelector('.ver');if(v)v.textContent=VERSION;try{trackGA4&&trackGA4('stars_extracted')}catch(e){};render(0)}
+  function sourceRect(img,w,h,t){let z=1+(S.zoom||0)*ease(t||0),ia=img.width/img.height,oa=w/h,bw,bh;if(ia>oa){bh=img.height;bw=bh*oa}else{bw=img.width;bh=bw/oa}let sw=bw/z,sh=bh/z,ax=(S.cx==null?.5:S.cx)*img.width,ay=(S.cy==null?.5:S.cy)*img.height,sx=cl(ax-sw/2,0,Math.max(0,img.width-sw)),sy=cl(ay-sh/2,0,Math.max(0,img.height-sh));return{sx,sy,sw,sh}}
+  function mapxy(x,y,r,w,h){return{x:(x-r.sx)/r.sw*w,y:(y-r.sy)/r.sh*h}}
+  function drawStars(ctx,w,h,r,t){let e=ease(t||0),ax=(S.cx||.5)*S.src.width,ay=(S.cy||.5)*S.src.height;for(let s of S.movers||[]){if(!s.sp)continue;let push=1+(S.fly||0)*.26*(s.depth||1)*e,sx=ax+(s.x-ax)*push,sy=ay+(s.y-ay)*push,p=mapxy(sx,sy,r,w,h);if(p.x<-120||p.y<-120||p.x>w+120||p.y>h+120)continue;let sc=w/r.sw*(1+(S.grow||0)*.42*(s.depth||1)*e);ctx.drawImage(s.sp,p.x-s.ax*sc,p.y-s.ay*sc,s.w*sc,s.h*sc)}}
+  function tunedDraw(c,t){if(!ok()||!c)return;let ctx=c.getContext('2d'),w=c.width,h=c.height,mode=S.preview||'final';ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,w,h);ctx.imageSmoothingEnabled=1;ctx.imageSmoothingQuality='high';let img=mode==='mask'&&S.mask?S.mask.canvas:mode==='stars'&&S.starsOnly?S.starsOnly:mode==='starless'&&S.starless?S.starless:S.starless||S.src;let r=sourceRect(img,w,h,mode==='final'?t:0);if(mode==='moving'){drawStars(ctx,w,h,sourceRect(S.src,w,h,0),0);return}ctx.drawImage(img,r.sx,r.sy,r.sw,r.sh,0,0,w,h);if(mode==='final'){S.statics=[];drawStars(ctx,w,h,r,t||0)}}
+  function tunedRender(t){if(!ok())return;try{if(typeof size==='function')size(S.src.width,S.src.height)}catch(e){}let c=$('main');tunedDraw(c,t||0);S.last=t||0;reticle()}
+  function reticle(){if(!ok())return;let tg=document.querySelector('.target'),c=$('main'),view=document.querySelector('.view');if(!tg||!c||!view)return;if((S.preview||'final')!=='final'){tg.style.display='none';return}let img=S.starless||S.src,r=sourceRect(img,c.width,c.height,S.last||0),p=mapxy((S.cx||.5)*img.width,(S.cy||.5)*img.height,r,c.width,c.height),cr=c.getBoundingClientRect(),vr=view.getBoundingClientRect();tg.style.left=cr.left-vr.left+p.x+'px';tg.style.top=cr.top-vr.top+p.y+'px';tg.style.display='block'}
+  function anchor(ev){if(!ok())return;let c=$('main'),img=S.starless||S.src,cr=c.getBoundingClientRect(),x=(ev.clientX-cr.left)/cr.width,y=(ev.clientY-cr.top)/cr.height;if(x<0||x>1||y<0||y>1)return;let r=sourceRect(img,c.width,c.height,S.last||0);S.cx=cl((r.sx+x*r.sw)/img.width,.02,.98);S.cy=cl((r.sy+y*r.sh)/img.height,.02,.98);ev.stopImmediatePropagation&&ev.stopImmediatePropagation();ev.preventDefault&&ev.preventDefault();tunedRender(S.last||0);if($('status'))$('status').textContent='Zoom center locked to source target'}
+  function install(){try{draw=tunedDraw;render=tunedRender;target=reticle;build=tunedBuild}catch(e){}patchDims();exportNote();let v=document.querySelector('.ver');if(v)v.textContent=VERSION;if($('badge'))$('badge').textContent=`${VERSION} · true starless pipeline`}
+  function hooks(){let view=document.querySelector('.view'),btn=$('build'),exp=$('export'),pre=$('preset');if(view&&!view.dataset.v063){view.dataset.v063=1;view.addEventListener('pointerdown',anchor,true)}if(btn&&!btn.dataset.v063){btn.dataset.v063=1;btn.addEventListener('click',e=>{e.stopImmediatePropagation&&e.stopImmediatePropagation();e.preventDefault&&e.preventDefault();tunedBuild()},true)}if(exp&&!exp.dataset.v063){exp.dataset.v063=1;exp.addEventListener('click',()=>{stopPreview();S.statics=[];patchDims();exportNote()},true)}if(pre&&!pre.dataset.v063){pre.dataset.v063=1;pre.addEventListener('change',exportNote)}}
+  document.addEventListener('DOMContentLoaded',()=>{install();hooks()});
 })();

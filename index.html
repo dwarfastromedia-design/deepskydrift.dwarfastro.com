@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="style.css?v=0.6.0">
 </head>
 <body>
-<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.6.3</span> <em>motion video creator</em></div><em id="badge">free browser app</em></header>
+<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.6.7</span> <em>motion video creator</em></div><em id="badge">free browser app</em></header>
 <div id="app">
 <main>
 <div class="view">
@@ -20,13 +20,13 @@
 <div class="status"><span id="status">Drop an image to begin</span><span id="dim"></span></div>
 </main>
 <aside>
-<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.6.3 · True starless pipeline.</div></section>
+<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.6.7 · Stronger conservative starless.</div></section>
 <section class="sec"><div class="ttl">Extraction</div>
 <div class="row"><div class="head"><span>Star Strictness</span><span id="sv" class="val">70%</span></div><input id="strict" type="range" min="30" max="95" value="70"></div>
 <div class="row"><div class="head"><span>Max Stars</span><span id="xv" class="val">2200</span></div><input id="max" type="range" min="300" max="7000" step="100" value="2200"></div>
 <div class="row"><div class="head"><span>Moving Stars</span><span id="mv" class="val">260</span></div><input id="move" type="range" min="20" max="1400" step="10" value="260"></div>
 <div class="row"><div class="head"><span>Mask Radius</span><span id="rv" class="val">2.5×</span></div><input id="rad" type="range" min="140" max="420" value="250"></div>
-<select id="bias"><option value="balanced">Balanced brightness + size</option><option value="bright">Prefer brighter stars</option><option value="size">Prefer larger stars</option><option value="isolated">Prefer isolated stars</option></select><p class="tiny">Starless background + stars-only motion layer. No static stars are redrawn.</p></section>
+<select id="bias"><option value="balanced">Balanced brightness + size</option><option value="bright">Prefer brighter stars</option><option value="size">Prefer larger stars</option><option value="isolated">Prefer isolated stars</option></select><p class="tiny">Stronger small/medium field-star softening with cluster and galaxy protection.</p></section>
 <section class="sec"><div class="ttl">Preview</div><select id="preview"><option value="final">Final Motion</option><option value="starless">Starless Structure</option><option value="stars">Stars Only</option><option value="mask">Star Mask</option><option value="moving">Moving Stars Only</option></select></section>
 <section class="sec"><div class="ttl">Motion</div>
 <div class="row"><div class="head"><span>Star Motion</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div>
@@ -42,6 +42,7 @@
 <script src="consent.js?v=0.6.0"></script>
 <script src="landing.js?v=0.6.0"></script>
 <script src="app.js?v=0.6.0"></script>
-<script id="motionTuneScript" src="motion-tune.js?v=0.6.3"></script>
+<script id="motionTuneScript" src="motion-tune.js?v=0.6.6"></script>
+<script src="starless-067.js?v=0.6.7"></script>
 </body>
 </html>

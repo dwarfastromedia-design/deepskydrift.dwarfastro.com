@@ -14,6 +14,13 @@
     s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_ID);
     document.head.appendChild(s);
   }
+  function loadLayeredEngine(){
+    if (document.getElementById('layered070Script')) return;
+    const s = document.createElement('script');
+    s.id = 'layered070Script';
+    s.src = 'layered-070.js?v=0.7.0';
+    document.body.appendChild(s);
+  }
   window.trackGA4 = function(eventName, params = {}){
     try {
       if (getConsent() !== 'accepted') return;
@@ -24,6 +31,7 @@
   function showBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.add('show'); }
   function hideBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.remove('show'); }
   document.addEventListener('DOMContentLoaded', function(){
+    loadLayeredEngine();
     const consent = getConsent();
     if (consent === 'accepted') { loadGA(); return; }
     if (consent === 'declined') return;

@@ -15,11 +15,18 @@
     document.head.appendChild(s);
   }
   function loadLayeredEngine(){
-    if (document.getElementById('layered070Script')) return;
-    const s = document.createElement('script');
-    s.id = 'layered070Script';
-    s.src = 'layered-070.js?v=0.7.0';
-    document.body.appendChild(s);
+    if (!document.getElementById('layered070Script')) {
+      const s = document.createElement('script');
+      s.id = 'layered070Script';
+      s.src = 'layered-070.js?v=0.7.0';
+      document.body.appendChild(s);
+    }
+    if (!document.getElementById('layered071Script')) {
+      const f = document.createElement('script');
+      f.id = 'layered071Script';
+      f.src = 'layered-071.js?v=0.7.1';
+      document.body.appendChild(f);
+    }
   }
   window.trackGA4 = function(eventName, params = {}){
     try {

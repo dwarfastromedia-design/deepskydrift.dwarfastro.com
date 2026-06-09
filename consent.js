@@ -46,6 +46,7 @@
     rememberVersion(version);
     await loadScript('layered070Script', 'layered-070.js', version);
     await loadScript('layered071Script', 'layered-071.js', version);
+    await loadScript('versionUiScript', 'version-ui-072.js', version);
     const v = document.querySelector('.ver');
     if (v) v.textContent = 'v' + version.split('-')[0];
   }

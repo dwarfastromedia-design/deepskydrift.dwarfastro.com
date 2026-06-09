@@ -2,7 +2,7 @@
   const GA_ID = 'G-FEZT7C1Y93';
   const CONSENT_KEY = 'deepskydrift_ga_consent';
   const VERSION_KEY = 'deepskydrift_loaded_version';
-  const FALLBACK_VERSION = '0.7.2-20260608a';
+  const FALLBACK_VERSION = '0.7.3-20260608b';
 
   function getConsent(){ try { return localStorage.getItem(CONSENT_KEY); } catch(e) { return null; } }
   function setConsent(value){ try { localStorage.setItem(CONSENT_KEY, value); } catch(e) {} }
@@ -22,9 +22,7 @@
     try {
       const previous = localStorage.getItem(VERSION_KEY);
       localStorage.setItem(VERSION_KEY, version);
-      if (previous && previous !== version) {
-        console.info('DeepSkyDrift updated', previous, '→', version);
-      }
+      if (previous && previous !== version) console.info('DeepSkyDrift updated', previous, '→', version);
     } catch(e) {}
   }
 
@@ -40,13 +38,11 @@
     });
   }
 
-  async function loadLayeredEngine(){
+  async function loadEngine(){
     const version = await getAppVersion();
     window.DSD_VERSION = version;
     rememberVersion(version);
-    await loadScript('layered070Script', 'layered-070.js', version);
-    await loadScript('layered071Script', 'layered-071.js', version);
-    await loadScript('versionUiScript', 'version-ui-072.js', version);
+    await loadScript('deepskydriftEngineScript', 'deepskydrift-engine.js', version);
     const v = document.querySelector('.ver');
     if (v) v.textContent = 'v' + version.split('-')[0];
   }
@@ -75,7 +71,7 @@
   function hideBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.remove('show'); }
 
   document.addEventListener('DOMContentLoaded', function(){
-    loadLayeredEngine();
+    loadEngine();
     const consent = getConsent();
     if (consent === 'accepted') { loadGA(); return; }
     if (consent === 'declined') return;

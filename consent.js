@@ -2,36 +2,33 @@
   const GA_ID = 'G-FEZT7C1Y93';
   const CONSENT_KEY = 'deepskydrift_ga_consent';
   const VERSION_KEY = 'deepskydrift_loaded_version';
-  const FALLBACK_VERSION = '0.7.6-alpha';
+  const FALLBACK = { version: '0.7.7', cacheKey: '0.7.7-runtime-audit', engine: 'deepskydrift-engine.js', runtimeFix: 'runtime-fix-077.js' };
 
   function getConsent(){ try { return localStorage.getItem(CONSENT_KEY); } catch(e) { return null; } }
   function setConsent(value){ try { localStorage.setItem(CONSENT_KEY, value); } catch(e) {} }
 
-  async function getAppVersion(){
+  async function getManifest(){
     try {
-      const r = await fetch('VERSION?ts=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) return FALLBACK_VERSION;
-      const text = (await r.text()).trim();
-      return text || FALLBACK_VERSION;
+      const r = await fetch('version.json?ts=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return FALLBACK;
+      const data = await r.json();
+      return Object.assign({}, FALLBACK, data || {});
     } catch(e) {
-      return FALLBACK_VERSION;
+      return FALLBACK;
     }
   }
 
-  function rememberVersion(version){
-    try {
-      const previous = localStorage.getItem(VERSION_KEY);
-      localStorage.setItem(VERSION_KEY, version);
-      if (previous && previous !== version) console.info('DeepSkyDrift updated', previous, '→', version);
-    } catch(e) {}
+  function rememberVersion(key){
+    try { localStorage.setItem(VERSION_KEY, key); } catch(e) {}
   }
 
-  function loadScript(id, src, version){
+  function loadScript(id, src, key){
     return new Promise(function(resolve){
-      if (document.getElementById(id)) { resolve(); return; }
+      const existing = document.getElementById(id);
+      if (existing) existing.remove();
       const s = document.createElement('script');
       s.id = id;
-      s.src = src + '?v=' + encodeURIComponent(version) + '&ts=' + Date.now();
+      s.src = src + '?v=' + encodeURIComponent(key) + '&ts=' + Date.now();
       s.onload = function(){ resolve(); };
       s.onerror = function(){ resolve(); };
       document.body.appendChild(s);
@@ -39,12 +36,14 @@
   }
 
   async function loadEngine(){
-    const version = await getAppVersion();
-    window.DSD_VERSION = version;
-    rememberVersion(version);
-    await loadScript('deepskydriftEngineScript', 'deepskydrift-engine.js', version);
-    const v = document.querySelector('.ver');
-    if (v) v.textContent = window.DSD_LIVE_VERSION || ('v' + version.split('-')[0]);
+    const manifest = await getManifest();
+    const key = manifest.cacheKey || manifest.version || FALLBACK.cacheKey;
+    window.DSD_VERSION = key;
+    rememberVersion(key);
+    await loadScript('deepskydriftEngineScript', manifest.engine || FALLBACK.engine, key);
+    await loadScript('runtimeFix077Script', manifest.runtimeFix || FALLBACK.runtimeFix, key);
+    const label = window.DSD_LIVE_VERSION || ('v' + (manifest.version || key).split('-')[0]);
+    const v = document.querySelector('.ver'); if (v) v.textContent = label;
   }
 
   function loadGA(){

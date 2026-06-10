@@ -2,7 +2,7 @@
   const GA_ID = 'G-FEZT7C1Y93';
   const CONSENT_KEY = 'deepskydrift_ga_consent';
   const VERSION_KEY = 'deepskydrift_loaded_version';
-  const FALLBACK_VERSION = '0.7.3-20260608b';
+  const FALLBACK_VERSION = '0.7.6-alpha';
 
   function getConsent(){ try { return localStorage.getItem(CONSENT_KEY); } catch(e) { return null; } }
   function setConsent(value){ try { localStorage.setItem(CONSENT_KEY, value); } catch(e) {} }
@@ -31,7 +31,7 @@
       if (document.getElementById(id)) { resolve(); return; }
       const s = document.createElement('script');
       s.id = id;
-      s.src = src + '?v=' + encodeURIComponent(version);
+      s.src = src + '?v=' + encodeURIComponent(version) + '&ts=' + Date.now();
       s.onload = function(){ resolve(); };
       s.onerror = function(){ resolve(); };
       document.body.appendChild(s);
@@ -44,7 +44,7 @@
     rememberVersion(version);
     await loadScript('deepskydriftEngineScript', 'deepskydrift-engine.js', version);
     const v = document.querySelector('.ver');
-    if (v) v.textContent = 'v' + version.split('-')[0];
+    if (v) v.textContent = window.DSD_LIVE_VERSION || ('v' + version.split('-')[0]);
   }
 
   function loadGA(){

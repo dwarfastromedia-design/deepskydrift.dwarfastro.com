@@ -1,1 +1,8 @@
-{"version":"0.7.7","cacheKey":"0.7.7-runtime-audit","engine":"deepskydrift-engine.js","app":"app.js","consent":"consent.js"}
+{
+  "version": "0.8.0",
+  "cacheKey": "0.8.0-star-pipeline",
+  "engine": "deepskydrift-engine.js",
+  "app": "app.js",
+  "consent": "consent.js",
+  "runtimeFix": null
+}

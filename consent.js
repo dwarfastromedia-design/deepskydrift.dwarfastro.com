@@ -2,7 +2,7 @@
   const GA_ID = 'G-FEZT7C1Y93';
   const CONSENT_KEY = 'deepskydrift_ga_consent';
   const VERSION_KEY = 'deepskydrift_loaded_version';
-  const FALLBACK = { version: '0.7.7', cacheKey: '0.7.7-runtime-audit', engine: 'deepskydrift-engine.js', runtimeFix: 'runtime-fix-077.js' };
+  const FALLBACK = { version: '0.8.0', cacheKey: '0.8.0-star-pipeline', engine: 'deepskydrift-engine.js', runtimeFix: null };
 
   function getConsent(){ try { return localStorage.getItem(CONSENT_KEY); } catch(e) { return null; } }
   function setConsent(value){ try { localStorage.setItem(CONSENT_KEY, value); } catch(e) {} }
@@ -18,9 +18,7 @@
     }
   }
 
-  function rememberVersion(key){
-    try { localStorage.setItem(VERSION_KEY, key); } catch(e) {}
-  }
+  function rememberVersion(key){ try { localStorage.setItem(VERSION_KEY, key); } catch(e) {} }
 
   function loadScript(id, src, key){
     return new Promise(function(resolve){
@@ -41,7 +39,7 @@
     window.DSD_VERSION = key;
     rememberVersion(key);
     await loadScript('deepskydriftEngineScript', manifest.engine || FALLBACK.engine, key);
-    await loadScript('runtimeFix077Script', manifest.runtimeFix || FALLBACK.runtimeFix, key);
+    if (manifest.runtimeFix) await loadScript('runtimeFixScript', manifest.runtimeFix, key);
     const label = window.DSD_LIVE_VERSION || ('v' + (manifest.version || key).split('-')[0]);
     const v = document.querySelector('.ver'); if (v) v.textContent = label;
   }

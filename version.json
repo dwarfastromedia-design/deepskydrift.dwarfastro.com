@@ -1,6 +1,6 @@
 {
-  "version": "0.8.0",
-  "cacheKey": "0.8.0-star-pipeline",
+  "version": "0.8.2",
+  "cacheKey": "0.8.2-star-drift",
   "engine": "deepskydrift-engine.js",
   "app": "app.js",
   "consent": "consent.js",

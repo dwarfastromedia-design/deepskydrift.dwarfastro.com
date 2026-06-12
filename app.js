@@ -1,4 +1,4 @@
-const APP_VERSION = 'v0.8.1';
+const APP_VERSION = 'v0.8.2';
 const FPS = 30;
 const MAX_IMAGE_DIM = 1920;
 const $ = id => document.getElementById(id);
@@ -67,12 +67,13 @@ function updExportInfo() {
 }
 
 function setVersionUI() {
+  const label = window.DSD_LIVE_VERSION || APP_VERSION;
   const ver = document.querySelector('.ver');
-  if (ver) ver.textContent = APP_VERSION;
+  if (ver) ver.textContent = label;
   const warn = document.querySelector('.warn');
-  if (warn) warn.textContent = `${APP_VERSION} · Detail-safe star extraction and parallax.`;
+  if (warn) warn.textContent = `${label} · Coherent star drift and parallax.`;
   const badge = $('badge');
-  if (badge && (!S.map || !S.stars.length)) badge.textContent = `${APP_VERSION} · star extraction ready`;
+  if (badge && (!S.map || !S.stars.length)) badge.textContent = `${label} · star extraction ready`;
 }
 
 function readControls() {
@@ -171,23 +172,7 @@ async function load(file) {
     canvas.width = w;
     canvas.height = h;
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    Object.assign(S, {
-      src: canvas,
-      starless: null,
-      starsOnly: null,
-      mask: null,
-      stars: [],
-      statics: [],
-      movers: [],
-      suppressedStars: [],
-      has: 1,
-      map: 0,
-      cx: 0.5,
-      cy: 0.5,
-      play: 0,
-      start: 0,
-      last: 0
-    });
+    Object.assign(S, { src: canvas, starless: null, starsOnly: null, mask: null, stars: [], statics: [], movers: [], suppressedStars: [], has: 1, map: 0, cx: 0.5, cy: 0.5, play: 0, start: 0, last: 0 });
     const drop = $('drop'); if (drop) drop.style.display = 'none';
     const buildBtn = $('build'); if (buildBtn) { buildBtn.disabled = false; buildBtn.textContent = 'Extract Stars'; }
     const playBtn = $('play'); if (playBtn) playBtn.disabled = true;
@@ -198,29 +183,18 @@ async function load(file) {
     render(0);
     st('Image loaded · click Extract Stars');
   };
-  img.onerror = () => {
-    URL.revokeObjectURL(url);
-    st('Could not load image.');
-  };
+  img.onerror = () => { URL.revokeObjectURL(url); st('Could not load image.'); };
   img.src = url;
 }
 
-async function build() {
-  st('Star engine is still loading. Try again in a moment.');
-}
+async function build() { st('Star engine is still loading. Try again in a moment.'); }
 
 function play() {
   if (!S.map) return;
   S.play = !S.play;
   const btn = $('play');
-  if (S.play) {
-    if (btn) btn.textContent = '⏸ Pause';
-    S.start = 0;
-    loop(performance.now());
-  } else {
-    if (btn) btn.textContent = '▶ Play';
-    cancelAnimationFrame(S.raf);
-  }
+  if (S.play) { if (btn) btn.textContent = '⏸ Pause'; S.start = 0; loop(performance.now()); }
+  else { if (btn) btn.textContent = '▶ Play'; cancelAnimationFrame(S.raf); }
 }
 
 function loop(ts) {
@@ -234,17 +208,8 @@ async function exp() {
   if (!S.map || !window.MediaRecorder) return;
   readControls();
   if (S.play) play();
-  const mimeType = [
-    'video/mp4;codecs=avc1.42E01E',
-    'video/mp4',
-    'video/webm;codecs=vp9',
-    'video/webm'
-  ].find(type => MediaRecorder.isTypeSupported(type));
-  if (!mimeType) {
-    st('No supported recording format found.');
-    return;
-  }
-
+  const mimeType = ['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm'].find(type => MediaRecorder.isTypeSupported(type));
+  if (!mimeType) { st('No supported recording format found.'); return; }
   const d = dims();
   const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
   const canvas = document.createElement('canvas');
@@ -252,7 +217,6 @@ async function exp() {
   canvas.height = d.h;
   canvas.style.cssText = `position:fixed;left:0;top:0;width:${d.w}px;height:${d.h}px;opacity:0.01;pointer-events:none;background:#000;z-index:9999`;
   document.body.appendChild(canvas);
-
   const oldPreview = S.preview;
   S.preview = 'final';
   const drawFrame = window.DSD_DRAW_FRAME || ((c, t) => drawBase(c, t, 'cover'));
@@ -260,21 +224,17 @@ async function exp() {
   const playBtn = $('play');
   if (exportBtn) exportBtn.disabled = true;
   if (playBtn) playBtn.disabled = true;
-
   drawFrame(canvas, 0, 'cover');
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
   const stream = canvas.captureStream(FPS);
   const track = stream.getVideoTracks()[0];
   const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 18000000 });
   const chunks = [];
   recorder.ondataavailable = event => { if (event.data && event.data.size) chunks.push(event.data); };
   const done = new Promise(resolve => { recorder.onstop = resolve; });
-
   const totalFrames = Math.max(1, Math.round((S.dur || 10) * FPS));
   const frameMs = 1000 / FPS;
   const start = performance.now();
-
   prog('Exporting movie', 0, `${d.w}×${d.h} · ${S.dur}s · ${APP_VERSION}`);
   recorder.start(250);
   for (let frame = 0; frame < totalFrames; frame++) {
@@ -289,11 +249,9 @@ async function exp() {
       prog('Exporting movie', pct, `${pct}% · ${FPS} fps · requested ${d.w}×${d.h}`);
     }
   }
-
   await wait(120);
   recorder.stop();
   await done;
-
   S.preview = oldPreview;
   document.body.removeChild(canvas);
   const blob = new Blob(chunks, { type: mimeType });
@@ -303,7 +261,6 @@ async function exp() {
   a.download = `deepsky-drift-${APP_VERSION}-${d.l}-${S.dur}s.${ext}`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
-
   hide();
   if (exportBtn) exportBtn.disabled = false;
   if (playBtn) playBtn.disabled = false;
@@ -329,19 +286,14 @@ function setZoomCenter(e) {
 function wire() {
   setVersionUI();
   syncControlLabels();
-
   const browse = $('browse'); if (browse) browse.onclick = () => $('file') && $('file').click();
   const file = $('file'); if (file) file.onchange = e => load(e.target.files[0]);
   const drop = $('drop');
-  if (drop) {
-    drop.ondragover = e => e.preventDefault();
-    drop.ondrop = e => { e.preventDefault(); load(e.dataTransfer.files[0]); };
-  }
+  if (drop) { drop.ondragover = e => e.preventDefault(); drop.ondrop = e => { e.preventDefault(); load(e.dataTransfer.files[0]); }; }
   const buildBtn = $('build'); if (buildBtn) buildBtn.onclick = () => build();
   const playBtn = $('play'); if (playBtn) playBtn.onclick = () => play();
   const exportBtn = $('export'); if (exportBtn) exportBtn.onclick = () => exp();
   const reset = $('reset'); if (reset) reset.onclick = () => location.reload();
-
   const strict = $('strict'); if (strict) strict.oninput = e => { S.strict = Number(e.target.value) / 100; syncControlLabels(); };
   const max = $('max'); if (max) max.oninput = e => { S.max = Number(e.target.value); syncControlLabels(); };
   const move = $('move'); if (move) move.oninput = e => { S.move = Number(e.target.value); syncControlLabels(); if (window.DSD_RESELECT_MOVERS) window.DSD_RESELECT_MOVERS(); };
@@ -353,9 +305,7 @@ function wire() {
   const zoom = $('zoom'); if (zoom) zoom.oninput = e => { S.zoom = Number(e.target.value) / 100; syncControlLabels(); render(S.last || 0); };
   const dur = $('dur'); if (dur) dur.oninput = e => { S.dur = Number(e.target.value); syncControlLabels(); };
   const preset = $('preset'); if (preset) preset.oninput = updExportInfo;
-
-  const view = document.querySelector('.view');
-  if (view) view.addEventListener('pointerdown', setZoomCenter, { passive: true });
+  const view = document.querySelector('.view'); if (view) view.addEventListener('pointerdown', setZoomCenter, { passive: true });
   window.onresize = () => S.src && render(S.last || 0);
 }
 

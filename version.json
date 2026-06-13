@@ -1,6 +1,6 @@
 {
-  "version": "0.8.2",
-  "cacheKey": "0.8.2-star-drift",
+  "version": "0.8.3",
+  "cacheKey": "0.8.3-center-parallax",
   "engine": "deepskydrift-engine.js",
   "app": "app.js",
   "consent": "consent.js",

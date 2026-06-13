@@ -1,4 +1,4 @@
-const APP_VERSION = 'v0.8.2';
+const APP_VERSION = 'v0.8.3';
 const FPS = 30;
 const MAX_IMAGE_DIM = 1920;
 const $ = id => document.getElementById(id);
@@ -71,7 +71,7 @@ function setVersionUI() {
   const ver = document.querySelector('.ver');
   if (ver) ver.textContent = label;
   const warn = document.querySelector('.warn');
-  if (warn) warn.textContent = `${label} · Coherent star drift and parallax.`;
+  if (warn) warn.textContent = `${label} · Centered star parallax.`;
   const badge = $('badge');
   if (badge && (!S.map || !S.stars.length)) badge.textContent = `${label} · star extraction ready`;
 }

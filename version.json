@@ -1,6 +1,6 @@
 {
-  "version": "0.8.3",
-  "cacheKey": "0.8.3-center-parallax",
+  "version": "0.8.4",
+  "cacheKey": "0.8.4-motion-bg",
   "engine": "deepskydrift-engine.js",
   "app": "app.js",
   "consent": "consent.js",

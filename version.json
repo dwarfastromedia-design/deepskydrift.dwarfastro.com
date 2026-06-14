@@ -1,6 +1,6 @@
 {
-  "version": "0.8.4",
-  "cacheKey": "0.8.4-motion-bg",
+  "version": "0.8.5",
+  "cacheKey": "0.8.5-outward-psf",
   "engine": "deepskydrift-engine.js",
   "app": "app.js",
   "consent": "consent.js",

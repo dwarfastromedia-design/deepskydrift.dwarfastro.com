@@ -1,6 +1,6 @@
 {
-  "version": "0.8.5",
-  "cacheKey": "0.8.5-outward-psf",
+  "version": "0.8.6",
+  "cacheKey": "0.8.6-smooth-travel",
   "engine": "deepskydrift-engine.js",
   "app": "app.js",
   "consent": "consent.js",

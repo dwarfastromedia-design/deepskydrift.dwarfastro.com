@@ -6,21 +6,21 @@
 <title>DeepSkyDrift | Create Motion Videos from Astrophotography Images</title>
 <meta name="description" content="Create subtle cinematic motion videos from your astrophotography images. DeepSkyDrift runs locally in your browser and keeps your images on your device.">
 <link rel="canonical" href="https://deepskydrift.dwarfastro.com/">
-<link rel="stylesheet" href="style.css?v=0.8.5">
+<link rel="stylesheet" href="style.css?v=0.8.6">
 </head>
 <body>
-<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.8.5</span> <em>motion video creator</em></div><em id="badge">free browser app</em></header>
+<header><div><b>DeepSky<span>Drift</span></b><span class="ver">v0.8.6</span> <em>motion video creator</em></div><em id="badge">free browser app</em></header>
 <div id="app">
 <main>
 <div class="view">
-<div id="drop" class="drop"><h1>Drop astrophotography image</h1><p>Extract stars first. Animate only the star layer.</p><button id="browse">Load Image</button></div>
+<div id="drop" class="drop"><h1>Drop astrophotography image</h1><p>Stars extract automatically after load. Animate the star layer smoothly.</p><button id="browse">Load Image</button></div>
 <canvas id="main"></canvas>
 <div id="ol" class="ol"><div class="card"><b id="olt">Working…</b><div class="bar"><div id="fill" class="fill"></div></div><p id="oll" class="tiny">Preparing</p></div></div>
 </div>
 <div class="status"><span id="status">Drop an image to begin</span><span id="dim"></span></div>
 </main>
 <aside>
-<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.8.5 · Outward respawn with safer star subtraction.</div></section>
+<section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.8.6 · Auto-extract and smooth outward travel.</div></section>
 <section class="sec"><div class="ttl">Extraction</div>
 <div class="row"><div class="head"><span>Star Strictness</span><span id="sv" class="val">70%</span></div><input id="strict" type="range" min="30" max="95" value="70"></div>
 <div class="row"><div class="head"><span>Max Stars</span><span id="xv" class="val">2200</span></div><input id="max" type="range" min="300" max="7000" step="100" value="2200"></div>
@@ -29,7 +29,8 @@
 <select id="bias"><option value="balanced">Balanced brightness + size</option><option value="bright">Prefer brighter stars</option><option value="size">Prefer larger stars</option><option value="isolated">Prefer isolated stars</option></select><p class="tiny">Hard halo stars may stay static to protect the background. Final preview repairs selected moving-star footprints, then overlays moving star sprites.</p></section>
 <section class="sec"><div class="ttl">Preview</div><select id="preview"><option value="final">Final Preview</option><option value="starless">Motion Background Diagnostic</option><option value="stars">Suppressed / Static Stars</option><option value="mask">Star Mask</option><option value="moving">Stars That Move</option></select></section>
 <section class="sec"><div class="ttl">Motion</div>
-<div class="row"><div class="head"><span>Star Motion</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div>
+<div class="row"><div class="head"><span>Star Distance</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div>
+<div class="row"><div class="head"><span>Travel Speed</span><span id="yv" class="val">1.00×</span></div><input id="travel" type="range" min="25" max="400" value="100"></div>
 <div class="row"><div class="head"><span>Star Growth</span><span id="gv" class="val">0.12×</span></div><input id="grow" type="range" min="0" max="80" value="12"></div>
 <div class="row"><div class="head"><span>Background Zoom</span><span id="zv" class="val">5%</span></div><input id="zoom" type="range" min="0" max="16" value="5"></div>
 <div class="row"><div class="head"><span>Duration</span><span id="tv" class="val">10s</span></div><input id="dur" type="range" min="5" max="60" step="5" value="10"></div>
@@ -39,8 +40,8 @@
 </div>
 <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
 <div id="cookieConsent" class="cookie-consent" role="dialog" aria-live="polite" aria-label="Cookie consent"><div class="cookie-copy">This site uses Google Analytics to understand how people use DeepSkyDrift. No personal data is collected and your images never leave your device. Your choice is saved locally and you will not be asked again. You can change it anytime by clearing your browser data.</div><div class="cookie-actions"><button id="cookieDecline" class="secondary" type="button">Decline</button><button id="cookieAccept" class="primary" type="button">Accept</button></div></div>
-<script src="app.js?v=0.8.5"></script>
-<script src="landing.js?v=0.8.5"></script>
-<script src="consent.js?v=0.8.5"></script>
+<script src="app.js?v=0.8.6"></script>
+<script src="landing.js?v=0.8.6"></script>
+<script src="consent.js?v=0.8.6"></script>
 </body>
 </html>

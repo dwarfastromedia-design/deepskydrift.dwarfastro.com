@@ -1,6 +1,6 @@
 {
-  "version": "0.8.7",
-  "cacheKey": "0.8.7-magic-presets",
+  "version": "0.8.8",
+  "cacheKey": "0.8.8-wow-ui",
   "engine": "deepskydrift-engine.js",
   "app": "app.js",
   "consent": "consent.js"

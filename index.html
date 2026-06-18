@@ -46,5 +46,6 @@
 <script src="app.js?v=0.8.7"></script>
 <script src="landing.js?v=0.8.7"></script>
 <script src="consent.js?v=0.8.7"></script>
+<script>(function(){const V='v0.8.7';function fix(){const ver=document.querySelector('.ver');if(ver&&ver.textContent!==V)ver.textContent=V;['#badge','.warn','#status'].forEach(function(sel){const el=document.querySelector(sel);if(el&&el.textContent&&el.textContent.indexOf('v0.8.6')>-1)el.textContent=el.textContent.replace(/v0\.8\.6/g,V);});}document.addEventListener('DOMContentLoaded',function(){try{new MutationObserver(fix).observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}fix();});window.addEventListener('load',fix);setTimeout(fix,500);setTimeout(fix,1500);})();</script>
 </body>
 </html>

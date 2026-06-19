@@ -8,19 +8,199 @@
 <link rel="canonical" href="https://deepskydrift.dwarfastro.com/">
 <link rel="stylesheet" href="style.css?v=0.9.0">
 <style>
-  body{--hdr:64px}.app-header{height:64px;display:flex;align-items:center;gap:14px;padding:0 16px;background:#05070bf7;border-bottom:1px solid #1b2a3b;position:relative;z-index:80;box-shadow:0 10px 30px #0007}.hamb{width:44px;min-height:44px;border-radius:12px;background:#ffffff07;border:1px solid #26364b;color:#dce7f7;font-size:18px;letter-spacing:0}.brandLink{display:flex;align-items:center;gap:10px;text-decoration:none;color:#dce7f7;min-width:0}.brandLogoPlate{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#f4f7fb;border:1px solid #ffffffd0;box-shadow:0 0 22px #4fa3ff55}.brandLogo{width:30px;height:30px;display:block;object-fit:contain}.brandName{font-weight:800;letter-spacing:-.03em;white-space:nowrap}.barSep{height:30px;width:1px;background:#26364b}.appTitle{display:flex;align-items:baseline;gap:8px;min-width:0}.appTitle strong{font-size:16px;white-space:nowrap}.appVer{font:10px monospace;color:#7cc8ff}.localNote{margin-left:auto;font:9px monospace;color:#50627b;text-transform:uppercase;letter-spacing:.14em;white-space:nowrap}.menuPanel{position:fixed;inset:0;z-index:100;pointer-events:none}.menuPanel.open{pointer-events:auto}.menuScrim{position:absolute;inset:0;background:#0008;opacity:0;transition:.18s}.menuPanel.open .menuScrim{opacity:1}.menuCard{position:absolute;left:12px;top:74px;width:min(340px,calc(100vw - 24px));max-height:calc(100vh - 88px);overflow:auto;background:#08101cf8;border:1px solid #26364b;border-radius:18px;box-shadow:0 24px 80px #000c;transform:translateY(-12px);opacity:0;transition:.18s;padding:14px}.menuPanel.open .menuCard{transform:translateY(0);opacity:1}.menuTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.menuTop b{font-size:15px}.menuClose{width:42px;min-height:38px;background:#ffffff08;border-color:#26364b;color:#dce7f7}.menuGroup{border-top:1px solid #1b2a3b;padding-top:10px;margin-top:10px}.menuGroup p{margin:0 0 8px;font:9px monospace;text-transform:uppercase;letter-spacing:.14em;color:#50627b}.menuGroup button,.menuGroup a{display:block;width:100%;text-align:left;margin:6px 0;padding:12px;border-radius:12px;border:1px solid #26364b;background:#ffffff06;color:#dce7f7;font:10px monospace;text-transform:uppercase;letter-spacing:.1em;text-decoration:none}.menuGroup button.primaryItem{background:#1fbf6a22;border-color:#50d890;color:#50d890}.menuGroup button.exportItem{background:#ff9f4322;border-color:#ffb86c;color:#ffbf7a}.presetGrid{display:grid;grid-template-columns:1fr;gap:8px}.presetGrid button{background:#ffffff06;border-color:#26364b;color:#b8c7da}.presetGrid button.active{background:#1fbf6a;border-color:#76f0a8;color:#03150b;font-weight:900;box-shadow:0 0 0 1px #76f0a855,0 0 18px #1fbf6a33}.presetGrid button.active:before{content:'✓ ';font-weight:900}.actionbar{position:sticky;top:0;z-index:30;background:#0a0f16f5;box-shadow:0 8px 24px #0005}.actions2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.playBtn{background:#1fbf6a;border-color:#76f0a8;color:#03150b;font-weight:900}.exportBtn{background:#ff9f43;border-color:#ffd19a;color:#1b0d00;font-weight:900}.ghostBtn{background:#ffffff08;border-color:#26364b;color:#b8c7da}.advanced{border-bottom:1px solid #1b2a3b}.advanced>summary{cursor:pointer;list-style:none;padding:15px;color:#7cc8ff;font:10px monospace;text-transform:uppercase;letter-spacing:.14em}.advanced>summary::-webkit-details-marker{display:none}.advanced>summary:before{content:'▸ ';color:#50d890}.advanced[open]>summary:before{content:'▾ '}.advanced .sec{border-bottom:1px solid #122033}.success{border:1px solid #50d89066;background:#50d89012;box-shadow:0 0 24px #50d89012}.success.show{display:block!important}.success .ttl{color:#50d890}.target{display:none}.targethint{display:none}header{height:64px}#app{height:calc(100vh - 64px)}@media(max-width:850px){.app-header{padding:0 10px;gap:9px}.brandName{display:none}.appTitle strong{font-size:14px}.localNote{display:none}#app{height:calc(100vh - 64px)}aside{top:64px}.actionbar{top:0}.actions2{grid-template-columns:1fr}.presetGrid{grid-template-columns:1fr}.target{width:42px;height:42px}.target:before{height:52px}.target:after{width:52px}}
+body{--hdr:64px}.app-header{height:64px;display:flex;align-items:center;gap:14px;padding:0 16px;background:#05070bf7;border-bottom:1px solid #1b2a3b;position:relative;z-index:80;box-shadow:0 10px 30px #0007}.hamb{width:44px;min-height:44px;border-radius:12px;background:#ffffff07;border:1px solid #26364b;color:#dce7f7;font-size:18px;letter-spacing:0}.brandLink{display:flex;align-items:center;gap:10px;text-decoration:none;color:#dce7f7;min-width:0}.brandLogoPlate{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#f4f7fb;border:1px solid #ffffffd0;box-shadow:0 0 22px #4fa3ff55}.brandLogo{width:30px;height:30px;display:block;object-fit:contain}.brandName{font-weight:800;letter-spacing:-.03em;white-space:nowrap}.barSep{height:30px;width:1px;background:#26364b}.appTitle{display:flex;align-items:baseline;gap:8px;min-width:0}.appTitle strong{font-size:16px;white-space:nowrap}.appVer{font:10px monospace;color:#7cc8ff}.localNote{margin-left:auto;font:9px monospace;color:#50627b;text-transform:uppercase;letter-spacing:.14em;white-space:nowrap}.menuPanel{position:fixed;inset:0;z-index:100;pointer-events:none}.menuPanel.open{pointer-events:auto}.menuScrim{position:absolute;inset:0;background:#0008;opacity:0;transition:.18s}.menuPanel.open .menuScrim{opacity:1}.menuCard{position:absolute;left:12px;top:74px;width:min(340px,calc(100vw - 24px));max-height:calc(100vh - 88px);overflow:auto;background:#08101cf8;border:1px solid #26364b;border-radius:18px;box-shadow:0 24px 80px #000c;transform:translateY(-12px);opacity:0;transition:.18s;padding:14px}.menuPanel.open .menuCard{transform:translateY(0);opacity:1}.menuTop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.menuTop b{font-size:15px}.menuClose{width:42px;min-height:38px;background:#ffffff08;border-color:#26364b;color:#dce7f7}.menuGroup{border-top:1px solid #1b2a3b;padding-top:10px;margin-top:10px}.menuGroup p{margin:0 0 8px;font:9px monospace;text-transform:uppercase;letter-spacing:.14em;color:#50627b}.menuGroup button,.menuGroup a{display:block;width:100%;text-align:left;margin:6px 0;padding:12px;border-radius:12px;border:1px solid #26364b;background:#ffffff06;color:#dce7f7;font:10px monospace;text-transform:uppercase;letter-spacing:.1em;text-decoration:none}.menuGroup button.primaryItem{background:#1fbf6a22;border-color:#50d890;color:#50d890}.menuGroup button.exportItem{background:#ff9f4322;border-color:#ffb86c;color:#ffbf7a}.presetGrid{display:grid;grid-template-columns:1fr;gap:8px}.presetGrid button{background:#ffffff06;border-color:#26364b;color:#b8c7da}.presetGrid button.active{background:#1fbf6a;border-color:#76f0a8;color:#03150b;font-weight:900;box-shadow:0 0 0 1px #76f0a855,0 0 18px #1fbf6a33}.presetGrid button.active:before{content:'✓ ';font-weight:900}.actionbar{position:sticky;top:0;z-index:30;background:#0a0f16f5;box-shadow:0 8px 24px #0005}.actions2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.playBtn{background:#1fbf6a;border-color:#76f0a8;color:#03150b;font-weight:900}.exportBtn{background:#ff9f43;border-color:#ffd19a;color:#1b0d00;font-weight:900}.ghostBtn{background:#ffffff08;border-color:#26364b;color:#b8c7da}.advanced{border-bottom:1px solid #1b2a3b}.advanced>summary{cursor:pointer;list-style:none;padding:15px;color:#7cc8ff;font:10px monospace;text-transform:uppercase;letter-spacing:.14em}.advanced>summary::-webkit-details-marker{display:none}.advanced>summary:before{content:'▸ ';color:#50d890}.advanced[open]>summary:before{content:'▾ '}.advanced .sec{border-bottom:1px solid #122033}.success{border:1px solid #50d89066;background:#50d89012;box-shadow:0 0 24px #50d89012}.success.show{display:block!important}.success .ttl{color:#50d890}.target{display:none}.targethint{display:none}header{height:64px}#app{height:calc(100vh - 64px)}@media(max-width:850px){.app-header{padding:0 10px;gap:9px}.brandName{display:none}.appTitle strong{font-size:14px}.localNote{display:none}#app{height:calc(100vh - 64px)}aside{top:64px}.actionbar{top:0}.actions2{grid-template-columns:1fr}.presetGrid{grid-template-columns:1fr}.target{width:42px;height:42px}.target:before{height:52px}.target:after{width:52px}}
 </style>
 </head>
-<body>
-<header class="app-header"><button id="menuBtn" class="hamb" type="button" aria-label="Open DeepSkyDrift menu" aria-expanded="false">☰</button><a class="brandLink" href="https://dwarfastro.com/" aria-label="Open DwarfAstro.com"><span class="brandLogoPlate"><img class="brandLogo" src="https://i0.wp.com/dwarfastro.com/wp-content/uploads/2026/03/dwarfastro112x112_white.png?fit=112%2C112&amp;ssl=1" alt="" width="30" height="30"></span><span class="brandName">DwarfAstro</span></a><span class="barSep" aria-hidden="true"></span><div class="appTitle"><strong>DeepSkyDrift</strong><span id="appVersion" class="appVer">v0.9.0</span></div><span class="localNote">local browser app</span></header>
-<div id="appMenu" class="menuPanel" aria-hidden="true"><div id="menuScrim" class="menuScrim"></div><nav class="menuCard" aria-label="DeepSkyDrift app menu"><div class="menuTop"><b>DeepSkyDrift</b><button id="menuClose" class="menuClose" type="button">×</button></div><div class="menuGroup"><p>Create</p><button data-menu-action="load" class="primaryItem" type="button">Load Image</button><button data-menu-action="extract" type="button">Re-extract Stars</button><button data-menu-action="play" type="button">Play / Pause</button><button data-menu-action="export" class="exportItem" type="button">Export Movie</button></div><div class="menuGroup"><p>Tools</p><button data-menu-action="advanced" type="button">Advanced Controls</button><button data-menu-action="diagnostics" type="button">Background Diagnostic</button><button data-menu-action="reset" type="button">Reset App</button></div><div class="menuGroup"><p>DwarfAstro</p><a href="https://dwarfastro.com/">Open DwarfAstro.com</a><a href="https://dwarfastro.com/about/">About DwarfAstro</a><button data-menu-action="privacy" type="button">Local Processing Note</button></div></nav></div>
-<div id="app"><main><div class="view"><div id="drop" class="drop"><h1>Make your astro image move</h1><p>Drop an image. Stars extract automatically. Pick a magic preset and export a smooth reel.</p><button id="browse">Load Image</button></div><canvas id="main"></canvas><div id="target" class="target" aria-hidden="true"><span class="dot"></span></div><div class="targethint">Tap image to aim motion center</div><div id="ol" class="ol"><div class="card"><b id="olt">Working…</b><div class="bar"><div id="fill" class="fill"></div></div><p id="oll" class="tiny">Preparing</p></div></div></div><div class="status"><span id="status">Drop an image to begin</span><span id="dim"></span></div></main><aside><section class="sec actionbar"><div class="ttl">Create</div><div class="actions2"><button id="play" class="playBtn" disabled>▶ Play</button><button id="export" class="exportBtn" disabled>● Export</button></div><button id="reset" class="ghostBtn" style="margin-top:8px">Reset</button></section><section class="sec"><button id="build" disabled>Extract Stars</button><div id="stats" class="stat"></div><div class="warn">v0.9.0 · Product shell and star-engine runtime.</div><p id="centerNote" class="tiny">Auto center will aim the motion after load. Tap preview to change the aim.</p></section><section class="sec"><div class="ttl">Magic Presets</div><div class="presetGrid"><button type="button" data-preset-key="cinematic">Cinematic Drift</button><button type="button" data-preset-key="flythrough">Deep Space Flythrough</button><button type="button" data-preset-key="meditation">Gentle Meditation</button><button type="button" data-preset-key="social">Social Reel</button><button type="button" data-preset-key="galaxy">Galaxy Core Push</button></div><p class="tiny">Start here. Presets tune star count, speed, duration, aspect ratio, and background motion.</p></section><section class="sec"><div class="ttl">Quick Motion</div><div class="presetGrid"><button type="button" data-intensity="subtle">Subtle</button><button type="button" data-intensity="cinematic">Cinematic</button><button type="button" data-intensity="intense">Intense</button></div></section><section class="sec"><div class="ttl">Duration & Size</div><div class="row"><div class="head"><span>Duration</span><span id="tv" class="val">10s</span></div><input id="dur" type="range" min="5" max="60" step="5" value="10"></div><select id="preset"><option value="portrait">Portrait 1080×1920</option><option value="landscape">Landscape 1920×1080</option><option value="square">Square 1080×1080</option></select><p id="exinfo" class="tiny">Export target: 1080×1920 at ~30 fps · browser may downscale</p></section><details class="advanced"><summary>Advanced Controls</summary><section class="sec"><div class="ttl">Extraction</div><div class="row"><div class="head"><span>Star Strictness</span><span id="sv" class="val">70%</span></div><input id="strict" type="range" min="30" max="95" value="70"></div><div class="row"><div class="head"><span>Max Stars</span><span id="xv" class="val">2200</span></div><input id="max" type="range" min="300" max="7000" step="100" value="2200"></div><div class="row"><div class="head"><span>Moving Stars</span><span id="mv" class="val">260</span></div><input id="move" type="range" min="20" max="1400" step="10" value="260"></div><div class="row"><div class="head"><span>Mask Radius</span><span id="rv" class="val">2.5×</span></div><input id="rad" type="range" min="140" max="420" value="250"></div><select id="bias"><option value="balanced">Balanced brightness + size</option><option value="bright">Prefer brighter stars</option><option value="size">Prefer larger stars</option><option value="isolated">Prefer isolated stars</option></select><p class="tiny">Hard halo stars may stay static to protect the background.</p></section><section class="sec"><div class="ttl">Preview</div><select id="preview"><option value="final">Final Preview</option><option value="starless">Motion Background Diagnostic</option><option value="stars">Suppressed / Static Stars</option><option value="mask">Star Mask</option><option value="moving">Stars That Move</option></select></section><section class="sec"><div class="ttl">Motion</div><div class="row"><div class="head"><span>Star Distance</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div><div class="row"><div class="head"><span>Travel Speed</span><span id="yv" class="val">1.00×</span></div><input id="travel" type="range" min="25" max="400" value="100"></div><div class="row"><div class="head"><span>Star Growth</span><span id="gv" class="val">0.12×</span></div><input id="grow" type="range" min="0" max="80" value="12"></div><div class="row"><div class="head"><span>Background Zoom</span><span id="zv" class="val">5%</span></div><input id="zoom" type="range" min="0" max="16" value="5"></div></section></details><section id="success" class="sec success" style="display:none"><div class="ttl">Export ready</div><p class="tiny">Saved: <span id="successName">movie</span></p><button id="share" type="button" class="playBtn">Share</button><button id="again" type="button" class="ghostBtn" style="margin-top:8px">Load Another Image</button><button id="makeVertical" type="button" class="exportBtn" style="margin-top:8px">Make Vertical Reel</button><button id="makeSlow" type="button" class="ghostBtn" style="margin-top:8px">Make Slow Meditation Version</button></section></aside></div>
+<body class="app-mode">
+<header class="app-header">
+  <button id="menuBtn" class="hamb" type="button" aria-label="Open DeepSkyDrift menu" aria-expanded="false">☰</button>
+  <a class="brandLink" href="https://dwarfastro.com/" aria-label="Open DwarfAstro.com">
+    <span class="brandLogoPlate"><img class="brandLogo" src="https://i0.wp.com/dwarfastro.com/wp-content/uploads/2026/03/dwarfastro112x112_white.png?fit=112%2C112&amp;ssl=1" alt="" width="30" height="30"></span>
+    <span class="brandName">DwarfAstro</span>
+  </a>
+  <span class="barSep" aria-hidden="true"></span>
+  <div class="appTitle"><strong>DeepSkyDrift</strong><span id="appVersion" class="appVer">v0.9.0</span></div>
+  <span class="localNote">local browser app</span>
+</header>
+
+<div id="appMenu" class="menuPanel" aria-hidden="true">
+  <div id="menuScrim" class="menuScrim"></div>
+  <nav class="menuCard" aria-label="DeepSkyDrift app menu">
+    <div class="menuTop"><b>DeepSkyDrift</b><button id="menuClose" class="menuClose" type="button">×</button></div>
+    <div class="menuGroup">
+      <p>Create</p>
+      <button data-menu-action="load" class="primaryItem" type="button">Load Image</button>
+      <button data-menu-action="extract" type="button">Re-extract Stars</button>
+      <button data-menu-action="play" type="button">Play / Pause</button>
+      <button data-menu-action="export" class="exportItem" type="button">Export Movie</button>
+    </div>
+    <div class="menuGroup">
+      <p>Tools</p>
+      <button data-menu-action="advanced" type="button">Advanced Controls</button>
+      <button data-menu-action="diagnostics" type="button">Background Diagnostic</button>
+      <button data-menu-action="reset" type="button">Reset App</button>
+    </div>
+    <div class="menuGroup">
+      <p>DwarfAstro</p>
+      <a href="https://dwarfastro.com/">Open DwarfAstro.com</a>
+      <a href="https://dwarfastro.com/about/">About DwarfAstro</a>
+      <button data-menu-action="privacy" type="button">Local Processing Note</button>
+    </div>
+  </nav>
+</div>
+
+<div id="app">
+  <main>
+    <div class="view">
+      <div id="drop" class="drop">
+        <h1>Make your astro image move</h1>
+        <p>Drop an image. Stars extract automatically. Pick a magic preset and export a smooth reel.</p>
+        <button id="browse">Load Image</button>
+      </div>
+      <canvas id="main"></canvas>
+      <div id="target" class="target" aria-hidden="true"><span class="dot"></span></div>
+      <div class="targethint">Tap image to aim motion center</div>
+      <div id="ol" class="ol"><div class="card"><b id="olt">Working…</b><div class="bar"><div id="fill" class="fill"></div></div><p id="oll" class="tiny">Preparing</p></div></div>
+    </div>
+    <div class="status"><span id="status">Drop an image to begin</span><span id="dim"></span></div>
+  </main>
+
+  <aside>
+    <section class="sec actionbar">
+      <div class="ttl">Create</div>
+      <div class="actions2"><button id="play" class="playBtn" disabled>▶ Play</button><button id="export" class="exportBtn" disabled>● Export</button></div>
+      <button id="reset" class="ghostBtn" style="margin-top:8px">Reset</button>
+    </section>
+    <section class="sec">
+      <button id="build" disabled>Extract Stars</button>
+      <div id="stats" class="stat"></div>
+      <div class="warn">v0.9.0 · Product shell and star-engine runtime.</div>
+      <p id="centerNote" class="tiny">Auto center will aim the motion after load. Tap preview to change the aim.</p>
+    </section>
+    <section class="sec">
+      <div class="ttl">Magic Presets</div>
+      <div class="presetGrid">
+        <button type="button" data-preset-key="cinematic">Cinematic Drift</button>
+        <button type="button" data-preset-key="flythrough">Deep Space Flythrough</button>
+        <button type="button" data-preset-key="meditation">Gentle Meditation</button>
+        <button type="button" data-preset-key="social">Social Reel</button>
+        <button type="button" data-preset-key="galaxy">Galaxy Core Push</button>
+      </div>
+      <p class="tiny">Start here. Presets tune star count, speed, duration, aspect ratio, and background motion.</p>
+    </section>
+    <section class="sec">
+      <div class="ttl">Quick Motion</div>
+      <div class="presetGrid"><button type="button" data-intensity="subtle">Subtle</button><button type="button" data-intensity="cinematic">Cinematic</button><button type="button" data-intensity="intense">Intense</button></div>
+    </section>
+    <section class="sec">
+      <div class="ttl">Duration & Size</div>
+      <div class="row"><div class="head"><span>Duration</span><span id="tv" class="val">10s</span></div><input id="dur" type="range" min="5" max="60" step="5" value="10"></div>
+      <select id="preset"><option value="portrait">Portrait 1080×1920</option><option value="landscape">Landscape 1920×1080</option><option value="square">Square 1080×1080</option></select>
+      <p id="exinfo" class="tiny">Export target: 1080×1920 at ~30 fps · browser may downscale</p>
+    </section>
+    <details class="advanced">
+      <summary>Advanced Controls</summary>
+      <section class="sec">
+        <div class="ttl">Extraction</div>
+        <div class="row"><div class="head"><span>Star Strictness</span><span id="sv" class="val">70%</span></div><input id="strict" type="range" min="30" max="95" value="70"></div>
+        <div class="row"><div class="head"><span>Max Stars</span><span id="xv" class="val">2200</span></div><input id="max" type="range" min="300" max="7000" step="100" value="2200"></div>
+        <div class="row"><div class="head"><span>Moving Stars</span><span id="mv" class="val">260</span></div><input id="move" type="range" min="20" max="1400" step="10" value="260"></div>
+        <div class="row"><div class="head"><span>Mask Radius</span><span id="rv" class="val">2.5×</span></div><input id="rad" type="range" min="140" max="420" value="250"></div>
+        <select id="bias"><option value="balanced">Balanced brightness + size</option><option value="bright">Prefer brighter stars</option><option value="size">Prefer larger stars</option><option value="isolated">Prefer isolated stars</option></select>
+        <p class="tiny">Hard halo stars may stay static to protect the background.</p>
+      </section>
+      <section class="sec">
+        <div class="ttl">Preview</div>
+        <select id="preview"><option value="final">Final Preview</option><option value="starless">Motion Background Diagnostic</option><option value="stars">Suppressed / Static Stars</option><option value="mask">Star Mask</option><option value="moving">Stars That Move</option></select>
+      </section>
+      <section class="sec">
+        <div class="ttl">Motion</div>
+        <div class="row"><div class="head"><span>Star Distance</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div>
+        <div class="row"><div class="head"><span>Travel Speed</span><span id="yv" class="val">1.00×</span></div><input id="travel" type="range" min="25" max="400" value="100"></div>
+        <div class="row"><div class="head"><span>Star Growth</span><span id="gv" class="val">0.12×</span></div><input id="grow" type="range" min="0" max="80" value="12"></div>
+        <div class="row"><div class="head"><span>Background Zoom</span><span id="zv" class="val">5%</span></div><input id="zoom" type="range" min="0" max="16" value="5"></div>
+      </section>
+    </details>
+    <section id="success" class="sec success" style="display:none">
+      <div class="ttl">Export ready</div>
+      <p class="tiny">Saved: <span id="successName">movie</span></p>
+      <button id="share" type="button" class="playBtn">Share</button>
+      <button id="again" type="button" class="ghostBtn" style="margin-top:8px">Load Another Image</button>
+      <button id="makeVertical" type="button" class="exportBtn" style="margin-top:8px">Make Vertical Reel</button>
+      <button id="makeSlow" type="button" class="ghostBtn" style="margin-top:8px">Make Slow Meditation Version</button>
+    </section>
+  </aside>
+</div>
+
 <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
 <div id="cookieConsent" class="cookie-consent" role="dialog" aria-live="polite" aria-label="Cookie consent"><div class="cookie-copy">This site uses Google Analytics to understand how people use DeepSkyDrift. No personal data is collected and your images never leave your device. Your choice is saved locally and you will not be asked again. You can change it anytime by clearing your browser data.</div><div class="cookie-actions"><button id="cookieDecline" class="secondary" type="button">Decline</button><button id="cookieAccept" class="primary" type="button">Accept</button></div></div>
+
 <script src="app.js?v=0.9.0"></script>
 <script src="star-engine.js?v=0.9.0"></script>
-<script src="landing.js?v=0.9.0"></script>
 <script src="consent.js?v=0.9.0"></script>
-<script>(function(){const V='v0.9.0';const $=id=>document.getElementById(id);function fixV(){const b=$('appVersion');if(b)b.textContent=V;['#status','.warn','#successName'].forEach(s=>{const e=document.querySelector(s);if(e&&e.textContent)e.textContent=e.textContent.replace(/v0\.8\.\d/g,V).replace(/0\.8\.\d/g,'0.9.0')})}function openM(){const m=$('appMenu'),b=$('menuBtn');if(m){m.classList.add('open');m.setAttribute('aria-hidden','false')}if(b)b.setAttribute('aria-expanded','true')}function closeM(){const m=$('appMenu'),b=$('menuBtn');if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true')}if(b)b.setAttribute('aria-expanded','false')}function act(a){closeM();if(a==='load')$('file')?.click();else if(a==='extract')$('build')?.click();else if(a==='play')$('play')?.click();else if(a==='export')$('export')?.click();else if(a==='reset')location.reload();else if(a==='advanced'){const d=document.querySelector('.advanced');if(d){d.open=true;d.scrollIntoView({behavior:'smooth',block:'start'})}}else if(a==='diagnostics'){const d=document.querySelector('.advanced');if(d)d.open=true;const p=$('preview');if(p){p.value='starless';p.dispatchEvent(new Event('input',{bubbles:true}))}}else if(a==='privacy'){const n=$('centerNote');if(n)n.textContent='DeepSkyDrift processes images locally in your browser. Your image is not uploaded.'}}function safeLoad(file){if(!file||!window.S)return;const url=URL.createObjectURL(file),im=new Image;im.onload=function(){URL.revokeObjectURL(url);const mobile=/iPad|iPhone|Android|Mobile/i.test(navigator.userAgent);const cap=mobile?1100:1500;let w=im.naturalWidth,h=im.naturalHeight,ow=w,oh=h;if(Math.max(w,h)>cap){const s=cap/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s)}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);S.loadCount=(S.loadCount||0)+1;Object.assign(S,{src:c,starless:null,starsOnly:null,mask:null,stars:[],statics:[],movers:[],suppressedStars:[],motionBg:null,motionMask:null,has:1,map:0,cx:.5,cy:.5,play:0,start:0,last:0,spriteFixKey:''});try{hideSuccess&&hideSuccess()}catch(e){}try{autoCenter&&autoCenter()}catch(e){}const d=$('drop');if(d)d.style.display='none';const b=$('build');if(b){b.disabled=false;b.textContent='Extracting Stars…'}const p=$('play');if(p)p.disabled=true;const ex=$('export');if(ex)ex.disabled=true;const stt=$('stats');if(stt){stt.style.display='none';stt.textContent=''}const dim=$('dim');if(dim)dim.textContent=ow===w&&oh===h?`${w}×${h}`:`${ow}×${oh}→${w}×${h}`;try{size&&size(w,h)}catch(e){}try{render088?render088(0):render&&render(0)}catch(e){}try{st&&st('Image loaded · extracting stars…')}catch(e){}setTimeout(function(){try{autoExtract?autoExtract():build&&build()}catch(e){try{st&&st('Extraction did not start. Tap Re-extract Stars.')}catch(_){} }},250);setTimeout(function(){const s=$('status');if(s&&/extracting/i.test(s.textContent)){const b=$('build');if(b){b.disabled=false;b.textContent='Re-extract Stars'}s.textContent='Still extracting. For large images, wait or use Re-extract Stars.'}},22000)};im.onerror=function(){URL.revokeObjectURL(url);try{st&&st('Could not load image')}catch(e){}};im.src=url}function patchLoad(){const f=$('file'),br=$('browse');if(f)f.onchange=e=>safeLoad(e.target.files[0]);if(br)br.onclick=()=>f&&f.click();document.querySelectorAll('[data-menu-action]').forEach(x=>x.addEventListener('click',()=>act(x.dataset.menuAction)));}function wire(){const mb=$('menuBtn');if(mb)mb.addEventListener('click',openM);$('menuClose')?.addEventListener('click',closeM);$('menuScrim')?.addEventListener('click',closeM);document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});try{new MutationObserver(fixV).observe($('appVersion'),{childList:true,characterData:true,subtree:true})}catch(e){}fixV();patchLoad();setInterval(()=>{fixV();patchLoad()},1000)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wire);else wire();window.addEventListener('load',wire)})();</script>
+<script>
+(function(){
+  var V='v0.9.0';
+  function el(id){return document.getElementById(id);}
+  function fixVersion(){
+    var version=el('appVersion');
+    if(version) version.textContent=V;
+    ['status','successName'].forEach(function(id){
+      var node=el(id);
+      if(node && node.textContent) node.textContent=node.textContent.replace(/v0\.8\.\d/g,V).replace(/0\.8\.\d/g,'0.9.0');
+    });
+    var warn=document.querySelector('.warn');
+    if(warn && /v0\.8\./.test(warn.textContent)) warn.textContent='v0.9.0 · Product shell and star-engine runtime.';
+  }
+  function openMenu(){
+    var menu=el('appMenu'), button=el('menuBtn');
+    if(menu){menu.classList.add('open');menu.setAttribute('aria-hidden','false');}
+    if(button) button.setAttribute('aria-expanded','true');
+  }
+  function closeMenu(){
+    var menu=el('appMenu'), button=el('menuBtn');
+    if(menu){menu.classList.remove('open');menu.setAttribute('aria-hidden','true');}
+    if(button) button.setAttribute('aria-expanded','false');
+  }
+  function action(name){
+    closeMenu();
+    if(name==='load' && el('file')) el('file').click();
+    else if(name==='extract' && el('build')) el('build').click();
+    else if(name==='play' && el('play')) el('play').click();
+    else if(name==='export' && el('export')) el('export').click();
+    else if(name==='reset') location.reload();
+    else if(name==='advanced'){
+      var adv=document.querySelector('.advanced');
+      if(adv){adv.open=true;adv.scrollIntoView({behavior:'smooth',block:'start'});}
+    }else if(name==='diagnostics'){
+      var details=document.querySelector('.advanced');
+      if(details) details.open=true;
+      var preview=el('preview');
+      if(preview){preview.value='starless';preview.dispatchEvent(new Event('input',{bubbles:true}));}
+    }else if(name==='privacy'){
+      var note=el('centerNote');
+      if(note) note.textContent='DeepSkyDrift processes images locally in your browser. Your image is not uploaded.';
+    }
+  }
+  function wireMenu(){
+    var menuButton=el('menuBtn'), closeButton=el('menuClose'), scrim=el('menuScrim');
+    if(menuButton) menuButton.addEventListener('click',openMenu);
+    if(closeButton) closeButton.addEventListener('click',closeMenu);
+    if(scrim) scrim.addEventListener('click',closeMenu);
+    document.querySelectorAll('[data-menu-action]').forEach(function(button){
+      button.addEventListener('click',function(){action(button.getAttribute('data-menu-action'));});
+    });
+    document.addEventListener('keydown',function(evt){if(evt.key==='Escape')closeMenu();});
+  }
+  function init(){
+    document.body.classList.remove('landing-mode');
+    document.body.classList.add('app-mode');
+    fixVersion();
+    wireMenu();
+    setInterval(fixVersion,1200);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
 </body>
 </html>

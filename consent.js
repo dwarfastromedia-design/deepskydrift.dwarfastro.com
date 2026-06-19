@@ -57,8 +57,19 @@
     } catch(e) {}
   }
 
+  function installMobilePortraitPolish(){
+    try {
+      if (document.getElementById('mobilePortraitPolish')) return;
+      const style = document.createElement('style');
+      style.id = 'mobilePortraitPolish';
+      style.textContent = '@media(max-width:700px) and (orientation:portrait){.app-header{justify-content:flex-start!important;gap:6px!important;padding:0 8px!important}.brandLink{display:flex!important;gap:5px!important;flex:0 0 auto!important;min-width:0!important}.brandLogoPlate{width:30px!important;height:30px!important}.brandLogo{width:28px!important;height:28px!important}.brandName{display:inline!important;font-size:13px!important;line-height:1!important;white-space:nowrap!important}.barSep{display:block!important;height:24px!important;width:1px!important;flex:0 0 1px!important;margin:0 2px!important}.appTitle{display:flex!important;flex:0 1 auto!important;min-width:0!important}.appTitle strong{font-size:14px!important;line-height:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.drawerTab{left:auto!important;right:0!important;top:auto!important;bottom:calc(126px + env(safe-area-inset-bottom))!important;transform:none!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:96px!important;min-height:96px!important;max-height:96px!important;border-radius:12px 0 0 12px!important;border-left:1px solid #2e5f94!important;border-right:0!important;z-index:87!important;padding:8px 4px!important}}@media(max-width:380px) and (orientation:portrait){.brandName{font-size:12px!important}.appTitle strong{font-size:13px!important}.app-header{gap:5px!important;padding:0 7px!important}.drawerTab{bottom:calc(118px + env(safe-area-inset-bottom))!important}}';
+      document.head.appendChild(style);
+    } catch(e) {}
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
     installDiagnosticsSection();
+    installMobilePortraitPolish();
     const consent = getConsent();
     if (consent === 'accepted') { loadGA(); return; }
     if (consent === 'declined') return;

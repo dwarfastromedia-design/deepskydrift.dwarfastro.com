@@ -112,6 +112,135 @@
     } catch(e) {}
   }
 
+  function installFrameMotionCenterFix(){
+    try {
+      if (window.__dsdFrameMotionCenterFix) return;
+      window.__dsdFrameMotionCenterFix = true;
+      if (typeof S === 'undefined') return;
+      const clamp = function(x,a,b){ return Math.max(a, Math.min(b, x)); };
+      const ensure = function(){
+        if (S.frameCx == null) S.frameCx = S.cx == null ? .5 : S.cx;
+        if (S.frameCy == null) S.frameCy = S.cy == null ? .5 : S.cy;
+        if (S.motionCx == null) S.motionCx = S.cx == null ? .5 : S.cx;
+        if (S.motionCy == null) S.motionCy = S.cy == null ? .5 : S.cy;
+      };
+      const frameX = function(){ ensure(); return S.frameCx; };
+      const frameY = function(){ ensure(); return S.frameCy; };
+      const motionX = function(){ ensure(); return S.motionCx; };
+      const motionY = function(){ ensure(); return S.motionCy; };
+
+      srcRect = function(img, W, H, t){
+        ensure();
+        t = t || 0;
+        const z = 1 + (S.zoom || 0) * ((t / Math.max(1, S.dur || 10)) % 1);
+        const ia = img.width / img.height, oa = W / H;
+        let bw, bh;
+        if (ia > oa) { bh = img.height; bw = bh * oa; } else { bw = img.width; bh = bw / oa; }
+        const sw = bw / z, sh = bh / z, cx = frameX() * img.width, cy = frameY() * img.height;
+        return { sx: clamp(cx - sw / 2, 0, Math.max(0, img.width - sw)), sy: clamp(cy - sh / 2, 0, Math.max(0, img.height - sh)), sw, sh };
+      };
+      motionRect = function(img, W, H){
+        ensure();
+        const ia = img.width / img.height, oa = W / H;
+        let bw, bh;
+        if (ia > oa) { bh = img.height; bw = bh * oa; } else { bw = img.width; bh = bw / oa; }
+        const cx = frameX() * img.width, cy = frameY() * img.height;
+        return { sx: clamp(cx - bw / 2, 0, Math.max(0, img.width - bw)), sy: clamp(cy - bh / 2, 0, Math.max(0, img.height - bh)), sw: bw, sh: bh };
+      };
+      drawMoving = function(g, s, r, w, h, t, alphaScale, phase){
+        const img = s.img || s.sp;
+        if (!img) return;
+        const p = phase === null || phase === undefined ? starPhase(s, t) : phase;
+        const vis = starVis(p);
+        if (vis <= .01) return;
+        const p0 = mapxy(s.x, s.y, r, w, h);
+        const center = mapxy(motionX() * S.src.width, motionY() * S.src.height, r, w, h);
+        const v = screenVectorFromCenter(p0, center, w, h);
+        const scale = w / r.sw, x = p0.x + v.dx * v.dist * p, y = p0.y + v.dy * v.dist * p;
+        if (x < -340 || y < -340 || x > w + 340 || y > h + 340) return;
+        g.save();
+        g.globalAlpha *= vis * (alphaScale == null ? 1 : alphaScale);
+        g.globalCompositeOperation = 'lighter';
+        g.filter = 'brightness(2.6) contrast(1.18) saturate(1.12)';
+        g.drawImage(img, x - s.ax * scale, y - s.ay * scale, s.w * scale, s.h * scale);
+        g.restore();
+      };
+      updateTarget = function(){
+        const m = document.getElementById('target'), h = document.querySelector('.targethint'), c = document.getElementById('main'), v = document.querySelector('.view');
+        if (!m || !c || !v || !S.src) { if (m) m.style.display = 'none'; if (h) h.style.display = 'none'; return; }
+        const cr = c.getBoundingClientRect(), vr = v.getBoundingClientRect(), rr = srcRect(S.src, c.width, c.height, 0);
+        const pt = mapxy(motionX() * S.src.width, motionY() * S.src.height, rr, c.width, c.height);
+        m.style.left = (cr.left - vr.left + pt.x) + 'px';
+        m.style.top = (cr.top - vr.top + pt.y) + 'px';
+        m.style.display = 'block';
+        if (h) h.style.display = 'block';
+      };
+      const originalAutoCenter = autoCenter;
+      autoCenter = function(){
+        if (typeof originalAutoCenter === 'function') originalAutoCenter();
+        ensure();
+        S.frameCx = S.motionCx = S.cx == null ? frameX() : S.cx;
+        S.frameCy = S.motionCy = S.cy == null ? frameY() : S.cy;
+      };
+
+      let localPan = null;
+      const point = function(e){
+        if (!S.src) return null;
+        const c = document.getElementById('main');
+        if (!c) return null;
+        const b = c.getBoundingClientRect();
+        if (!b.width || !b.height) return null;
+        const nx = (e.clientX - b.left) / b.width, ny = (e.clientY - b.top) / b.height;
+        if (nx < 0 || nx > 1 || ny < 0 || ny > 1) return null;
+        const r = srcRect(S.src, c.width, c.height, 0);
+        return { x: r.sx + nx * r.sw, y: r.sy + ny * r.sh, rect: r, w: c.width, h: c.height };
+      };
+      const setMotion = function(e){
+        const p = point(e);
+        if (!p) return;
+        S.motionCx = S.cx = clamp(p.x / S.src.width, .04, .96);
+        S.motionCy = S.cy = clamp(p.y / S.src.height, .04, .96);
+        if (typeof render088 === 'function') render088(S.last || 0);
+        if (typeof window.trackGA4 === 'function') window.trackGA4('center_set', { cx: Number(S.motionCx.toFixed(3)), cy: Number(S.motionCy.toFixed(3)), view_mode: S.viewMode || 'original' });
+      };
+      const view = document.querySelector('.view');
+      if (view && !view.dataset.frameMotionHandler) {
+        view.dataset.frameMotionHandler = '1';
+        view.addEventListener('pointerdown', function(e){
+          const p = point(e);
+          if (!p) return;
+          ensure();
+          localPan = { id: e.pointerId, x: e.clientX, y: e.clientY, frameCx: frameX(), frameCy: frameY(), rect: p.rect, w: p.w, h: p.h, moved: false };
+          try { document.getElementById('main').setPointerCapture(e.pointerId); } catch(err) {}
+          if (S.viewMode === 'reel916') e.preventDefault();
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+        view.addEventListener('pointermove', function(e){
+          if (!localPan || e.pointerId !== localPan.id || !S.src) return;
+          const dx = e.clientX - localPan.x, dy = e.clientY - localPan.y;
+          if (Math.abs(dx) + Math.abs(dy) < 8 && !localPan.moved) { e.stopImmediatePropagation(); return; }
+          localPan.moved = true;
+          if (S.viewMode === 'reel916') {
+            S.frameCx = clamp(localPan.frameCx - dx / localPan.w * localPan.rect.sw / S.src.width, .04, .96);
+            S.frameCy = clamp(localPan.frameCy - dy / localPan.h * localPan.rect.sh / S.src.height, .04, .96);
+            if (typeof render088 === 'function') render088(S.last || 0);
+            e.preventDefault();
+          }
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+        view.addEventListener('pointerup', function(e){
+          if (!localPan || e.pointerId !== localPan.id) return;
+          const moved = localPan.moved;
+          localPan = null;
+          if (!moved) setMotion(e);
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+        view.addEventListener('pointercancel', function(e){ localPan = null; e.stopImmediatePropagation(); }, { capture: true, passive: true });
+      }
+      ensure();
+    } catch(e) {}
+  }
+
   function installOptionsTabToggle(){
     try {
       const oldTab = document.getElementById('drawerTab');
@@ -131,6 +260,8 @@
     installDiagnosticsSection();
     installMobilePortraitPolish();
     installFramingPreviewFix();
+    installFrameMotionCenterFix();
+    setTimeout(installFrameMotionCenterFix, 120);
     setTimeout(installOptionsTabToggle, 0);
     setTimeout(installOptionsTabToggle, 120);
     const consent = getConsent();

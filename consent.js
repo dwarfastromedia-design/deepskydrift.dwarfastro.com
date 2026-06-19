@@ -67,9 +67,60 @@
     } catch(e) {}
   }
 
+  function installFramingPreviewFix(){
+    try {
+      if (window.__dsdFramingPreviewFix) return;
+      window.__dsdFramingPreviewFix = true;
+      if (typeof S === 'undefined') return;
+      S.framing = 0;
+
+      const originalDrawFrame = window.drawFrame088 || (typeof drawFrame088 !== 'undefined' ? drawFrame088 : null);
+      if (typeof originalDrawFrame === 'function') {
+        const stillFrame = function(c, t){
+          if (S && S.framing && S.src && typeof srcRect === 'function') {
+            const g = c.getContext('2d'), w = c.width, h = c.height, r = srcRect(S.src, w, h, 0);
+            g.clearRect(0, 0, w, h);
+            g.fillStyle = '#000';
+            g.fillRect(0, 0, w, h);
+            g.imageSmoothingEnabled = true;
+            g.imageSmoothingQuality = 'high';
+            g.drawImage(S.src, r.sx, r.sy, r.sw, r.sh, 0, 0, w, h);
+            return;
+          }
+          return originalDrawFrame(c, t);
+        };
+        window.drawFrame088 = stillFrame;
+        try { drawFrame088 = stillFrame; } catch(e) {}
+      }
+
+      const view = document.querySelector('.view');
+      if (!view) return;
+      const startFraming = function(){
+        try {
+          if (S && S.src && S.viewMode === 'reel916') {
+            S.framing = 1;
+            if (typeof render088 === 'function') render088(0);
+          }
+        } catch(e) {}
+      };
+      const stopFraming = function(){
+        try {
+          if (S && S.framing) {
+            S.framing = 0;
+            if (typeof render088 === 'function') setTimeout(function(){ render088(S.last || 0); }, 0);
+          }
+        } catch(e) {}
+      };
+      view.addEventListener('pointerdown', startFraming, { capture: true, passive: true });
+      view.addEventListener('pointerup', stopFraming, { capture: true, passive: true });
+      view.addEventListener('pointercancel', stopFraming, { capture: true, passive: true });
+    } catch(e) {}
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
     installDiagnosticsSection();
     installMobilePortraitPolish();
+    installFramingPreviewFix();
     const consent = getConsent();
     if (consent === 'accepted') { loadGA(); return; }
     if (consent === 'declined') return;

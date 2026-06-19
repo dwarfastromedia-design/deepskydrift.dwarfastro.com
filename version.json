@@ -1,7 +1,7 @@
 {
-  "version": "0.8.8",
-  "cacheKey": "0.8.8-wow-ui",
-  "engine": "deepskydrift-engine.js",
+  "version": "0.8.9",
+  "cacheKey": "0.8.9-star-engine",
+  "engine": "star-engine.js",
   "app": "app.js",
   "consent": "consent.js"
 }

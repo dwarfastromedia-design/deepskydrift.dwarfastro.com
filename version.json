@@ -1,6 +1,6 @@
 {
-  "version": "0.9.0",
-  "cacheKey": "0.9.0-product-shell",
+  "version": "0.9.1",
+  "cacheKey": "0.9.1-brighter-stars",
   "engine": "star-engine.js",
   "app": "app.js",
   "consent": "consent.js"

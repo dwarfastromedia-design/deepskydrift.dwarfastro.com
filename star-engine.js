@@ -1,6 +1,6 @@
-/* DeepSkyDrift star-engine.js — classical background-aware star extraction for v0.8.x */
+/* DeepSkyDrift star-engine.js — classical background-aware star extraction for v0.9.0 */
 (function(){
-const V='v0.8.9-star-engine';let cache=null;const $=id=>document.getElementById(id),cl=(v,a,b)=>v<a?a:v>b?b:v,ci=(v,a,b)=>cl(v|0,a,b),tick=()=>new Promise(r=>requestAnimationFrame(r));
+const V='v0.9.0-star-engine';let cache=null;const $=id=>document.getElementById(id),cl=(v,a,b)=>v<a?a:v>b?b:v,ci=(v,a,b)=>cl(v|0,a,b),tick=()=>new Promise(r=>requestAnimationFrame(r));
 function say(s){try{st(s)}catch(e){}}function prog2(t,p,l){try{prog(t,p,l||t)}catch(e){say(l||t)}}function end(){try{hide()}catch(e){}}function r(){try{installRenderOverride&&installRenderOverride()}catch(e){}try{render088?render088(S.last||0):render(S.last||0)}catch(e){}}
 function med(a){a=Array.from(a);if(!a.length)return 0;a.sort((x,y)=>x-y);let m=a.length>>1;return a.length&1?a[m]:(a[m-1]+a[m])*.5}
 function canvasData(c){let w=c.width,h=c.height,img=c.getContext('2d',{willReadFrequently:true}).getImageData(0,0,w,h),d=img.data,n=w*h,L=new Float32Array(n),R=new Float32Array(n),G=new Float32Array(n),B=new Float32Array(n);for(let i=0,p=0;i<n;i++,p+=4){R[i]=d[p];G[i]=d[p+1];B[i]=d[p+2];L[i]=.2126*d[p]+.7152*d[p+1]+.0722*d[p+2]}return{w,h,img,L,ch:[R,G,B]}}

@@ -28,7 +28,37 @@
   function showBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.add('show'); }
   function hideBanner(){ const el = document.getElementById('cookieConsent'); if (el) el.classList.remove('show'); }
 
+  function installDiagnosticsSection(){
+    try {
+      const preview = document.getElementById('preview');
+      if (!preview) return;
+      const advanced = preview.closest('details.advanced');
+      const oldSection = preview.closest('section.sec');
+      if (!advanced || !oldSection) return;
+      if (preview.closest('details.diagnosticsWrap')) return;
+
+      const style = document.createElement('style');
+      style.textContent = '.diagnosticsWrap{margin-top:10px;border-top:1px solid #1b2a3b;padding-top:10px}.diagnosticsWrap>summary{cursor:pointer;color:#7cc8ff;font:10px monospace;text-transform:uppercase;letter-spacing:.12em;list-style:none}.diagnosticsWrap>summary::-webkit-details-marker{display:none}.diagnosticsWrap>summary:after{content:"+";float:right;color:#50627b}.diagnosticsWrap[open]>summary:after{content:"–"}.diagnosticsWrap .sec{border-bottom:0!important;padding-bottom:0!important}';
+      document.head.appendChild(style);
+
+      const diagnostics = document.createElement('details');
+      diagnostics.className = 'diagnosticsWrap';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Diagnostics';
+      const section = document.createElement('section');
+      section.className = 'sec';
+
+      preview.value = 'final';
+      section.appendChild(preview);
+      diagnostics.appendChild(summary);
+      diagnostics.appendChild(section);
+      oldSection.remove();
+      advanced.appendChild(diagnostics);
+    } catch(e) {}
+  }
+
   document.addEventListener('DOMContentLoaded', function(){
+    installDiagnosticsSection();
     const consent = getConsent();
     if (consent === 'accepted') { loadGA(); return; }
     if (consent === 'declined') return;

@@ -1,6 +1,6 @@
 {
-  "version": "0.8.9",
-  "cacheKey": "0.8.9-star-engine",
+  "version": "0.9.0",
+  "cacheKey": "0.9.0-product-shell",
   "engine": "star-engine.js",
   "app": "app.js",
   "consent": "consent.js"

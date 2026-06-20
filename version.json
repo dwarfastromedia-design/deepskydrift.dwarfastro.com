@@ -1,6 +1,6 @@
 {
-  "version": "0.9.3",
-  "cacheKey": "0.9.3-clean-runtime",
+  "version": "0.9.4",
+  "cacheKey": "0.9.4-clean-runtime",
   "engine": "star-engine.js",
   "app": "app.js",
   "consent": "consent.js"

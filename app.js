@@ -1,4 +1,4 @@
-const APP_VERSION = 'v0.9.2';
+const APP_VERSION = 'v0.9.3';
 const FPS = 30;
 const MAX_IMAGE_DIM = 1920;
 const $ = id => document.getElementById(id);
@@ -31,6 +31,8 @@ let S = {
   bias: 'balanced',
   fly: 0.65,
   travel: 1,
+  accel: 1.55,
+  starBright: 1,
   grow: 0.12,
   zoom: 0.05,
   dur: 10,
@@ -50,15 +52,15 @@ let S = {
 let Pan = null;
 
 const PRESETS = {
-  cinematic: { name: 'Cinematic Drift', strict: 70, max: 2200, move: 260, rad: 250, bias: 'balanced', fly: 65, travel: 100, grow: 12, zoom: 5, dur: 10, preset: 'portrait' },
-  meditation: { name: 'Gentle Meditation', strict: 74, max: 1800, move: 180, rad: 245, bias: 'isolated', fly: 38, travel: 45, grow: 6, zoom: 3, dur: 60, preset: 'landscape' },
-  social: { name: 'Social Reel', strict: 68, max: 2600, move: 420, rad: 250, bias: 'bright', fly: 90, travel: 145, grow: 14, zoom: 6, dur: 15, preset: 'portrait' }
+  cinematic: { name: 'Cinematic Drift', strict: 70, max: 2200, move: 260, rad: 250, bias: 'balanced', fly: 65, travel: 100, accel: 155, starBright: 100, grow: 12, zoom: 5, dur: 10, preset: 'portrait' },
+  meditation: { name: 'Gentle Meditation', strict: 74, max: 1800, move: 180, rad: 245, bias: 'isolated', fly: 38, travel: 45, accel: 125, starBright: 90, grow: 6, zoom: 3, dur: 60, preset: 'landscape' },
+  social: { name: 'Social Reel', strict: 68, max: 2600, move: 420, rad: 250, bias: 'bright', fly: 90, travel: 145, accel: 175, starBright: 112, grow: 14, zoom: 6, dur: 15, preset: 'portrait' }
 };
 
 const INTENSITY = {
-  subtle: { fly: 42, travel: 60, grow: 5, move: 180 },
-  cinematic: { fly: 75, travel: 115, grow: 10, move: 300 },
-  intense: { fly: 125, travel: 210, grow: 16, move: 560 }
+  subtle: { fly: 42, travel: 60, accel: 125, grow: 5, move: 180 },
+  cinematic: { fly: 75, travel: 115, accel: 155, grow: 10, move: 300 },
+  intense: { fly: 125, travel: 210, accel: 195, grow: 16, move: 560 }
 };
 
 function cl(x, a, b) { return Math.max(a, Math.min(b, x)); }
@@ -71,7 +73,7 @@ function wait(ms = 20) { return new Promise(r => setTimeout(r, ms)); }
 
 function st(v) {
   const e = $('status');
-  if (e) e.textContent = String(v).replace(/v0\.9\.1/g, APP_VERSION).replace(/0\.9\.1/g, '0.9.2').replace(/v0\.8\.\d/g, APP_VERSION).replace(/0\.8\.\d/g, '0.9.2');
+  if (e) e.textContent = String(v).replace(/v0\.9\.2/g, APP_VERSION).replace(/0\.9\.2/g, '0.9.3').replace(/v0\.9\.1/g, APP_VERSION).replace(/0\.9\.1/g, '0.9.3').replace(/v0\.8\.\d/g, APP_VERSION).replace(/0\.8\.\d/g, '0.9.3');
 }
 
 function ga(name, params = {}) {
@@ -110,7 +112,8 @@ function labels() {
   const pairs = [
     ['strict', 'sv', v => v + '%'], ['max', 'xv', v => v], ['move', 'mv', v => v],
     ['rad', 'rv', v => (v / 100).toFixed(1) + '×'], ['fly', 'fv', v => (v / 100).toFixed(2) + '×'],
-    ['travel', 'yv', v => (v / 100).toFixed(2) + '×'], ['grow', 'gv', v => (v / 100).toFixed(2) + '×'],
+    ['travel', 'yv', v => (v / 100).toFixed(2) + '×'], ['accel', 'av', v => (v / 100).toFixed(2) + '×'],
+    ['starBright', 'bv', v => (v / 100).toFixed(2) + '×'], ['grow', 'gv', v => (v / 100).toFixed(2) + '×'],
     ['zoom', 'zv', v => v + '%'], ['dur', 'tv', v => v + 's']
   ];
   for (const [id, out, fn] of pairs) {
@@ -133,6 +136,8 @@ function read() {
   S.preview = $('preview')?.value || 'final';
   S.fly = Number($('fly')?.value || 65) / 100;
   S.travel = Number($('travel')?.value || 100) / 100;
+  S.accel = Number($('accel')?.value || 155) / 100;
+  S.starBright = Number($('starBright')?.value || 100) / 100;
   S.grow = Number($('grow')?.value || 12) / 100;
   S.zoom = Number($('zoom')?.value || 5) / 100;
   S.dur = Number($('dur')?.value || 10);
@@ -180,6 +185,10 @@ function smooth(a, b, x) { x = cl((x - a) / (b - a), 0, 1); return x * x * (3 - 
 function starPhase(s, t) { const rate = 0.20 * cl(S.travel || 1, 0.15, 5); return ((t || 0) * rate + (s.phase ?? hash(s.id))) % 1; }
 function starVis(p) { return smooth(0, 0.01, p); }
 
+function tierDistance(s) { return s.tier === 3 ? 1.35 : s.tier === 2 ? 1.0 : 0.65; }
+function tierGamma(s) { return cl((S.accel || 1.55) + (s.tier === 3 ? 0.25 : s.tier === 2 ? 0 : -0.15), 1.05, 2.45); }
+function tierBright(s) { return s.tier === 3 ? 1.15 : s.tier === 2 ? 1.0 : 0.85; }
+
 function screenVectorFromCenter(p0, c, w, h) {
   let dx = p0.x - c.x, dy = p0.y - c.y, len = Math.hypot(dx, dy);
   if (len < 1e-4) { dx = 1; dy = 0; len = 1; } else { dx /= len; dy /= len; }
@@ -194,19 +203,25 @@ function drawMoving(g, s, r, w, h, t, alphaScale = 1, phase = null) {
   const img = s.img || s.sp;
   if (!img) return;
   const anchored = !!S.anchorPreview;
-  const p = anchored ? 0 : (phase === null ? starPhase(s, t) : phase);
-  const vis = anchored ? 1 : starVis(p);
+  const rawP = anchored ? 0 : (phase === null ? starPhase(s, t) : phase);
+  const p = anchored ? 0 : Math.pow(rawP, tierGamma(s));
+  const vis = anchored ? 1 : starVis(rawP);
   if (vis <= 0.01) return;
   const p0 = mapxy(s.x, s.y, r, w, h);
   const center = mapxy(motionX() * S.src.width, motionY() * S.src.height, r, w, h);
   const v = screenVectorFromCenter(p0, center, w, h);
-  const scale = w / r.sw;
-  const x = p0.x + v.dx * v.dist * p, y = p0.y + v.dy * v.dist * p;
+  const distance = v.dist * tierDistance(s);
+  const spriteGrowth = 1 + (S.grow || 0) * p * (s.tier === 3 ? 1.25 : s.tier === 2 ? 1 : 0.7);
+  const scale = w / r.sw * spriteGrowth;
+  const x = p0.x + v.dx * distance * p, y = p0.y + v.dy * distance * p;
   if (x < -340 || y < -340 || x > w + 340 || y > h + 340) return;
+  const userBright = cl(S.starBright || 1, 0.35, 2.25), tBright = tierBright(s);
+  const alpha = cl(vis * alphaScale * userBright * tBright, 0, 1);
+  const filterBright = cl(1.75 + 0.55 * userBright * tBright, 1.35, 3.35);
   g.save();
-  g.globalAlpha *= vis * alphaScale;
+  g.globalAlpha *= alpha;
   g.globalCompositeOperation = 'lighter';
-  g.filter = 'brightness(2.6) contrast(1.18) saturate(1.12)';
+  g.filter = `brightness(${filterBright.toFixed(2)}) contrast(1.18) saturate(1.12)`;
   g.drawImage(img, x - s.ax * scale, y - s.ay * scale, s.w * scale, s.h * scale);
   g.restore();
 }
@@ -341,7 +356,7 @@ function applyPreset(key, source = 'user') {
   const p = PRESETS[key];
   if (!p) return;
   setVal('strict', p.strict); setVal('max', p.max); setVal('move', p.move); setVal('rad', p.rad); setVal('bias', p.bias);
-  setVal('fly', p.fly); setVal('travel', p.travel); setVal('grow', p.grow); setVal('zoom', p.zoom); setVal('dur', p.dur); setVal('preset', p.preset);
+  setVal('fly', p.fly); setVal('travel', p.travel); setVal('accel', p.accel); setVal('starBright', p.starBright); setVal('grow', p.grow); setVal('zoom', p.zoom); setVal('dur', p.dur); setVal('preset', p.preset);
   S.lastPreset = p.name;
   markPreset(key);
   read();
@@ -353,7 +368,7 @@ function applyPreset(key, source = 'user') {
 function applyIntensity(key) {
   const p = INTENSITY[key];
   if (!p) return;
-  setVal('fly', p.fly); setVal('travel', p.travel); setVal('grow', p.grow); setVal('move', p.move);
+  setVal('fly', p.fly); setVal('travel', p.travel); setVal('accel', p.accel); setVal('grow', p.grow); setVal('move', p.move);
   S.lastIntensity = key;
   markIntensity(key);
   read();
@@ -367,7 +382,7 @@ function showSuccess(name) {
   if (!s) return;
   s.classList.add('show');
   const n = $('successName');
-  if (n) n.textContent = String(name || S.lastExportName || 'movie').replace(/v0\.9\.1/g, APP_VERSION).replace(/v0\.8\.\d/g, APP_VERSION);
+  if (n) n.textContent = String(name || S.lastExportName || 'movie').replace(/v0\.9\.2/g, APP_VERSION).replace(/v0\.9\.1/g, APP_VERSION).replace(/v0\.8\.\d/g, APP_VERSION);
   setTimeout(() => { try { s.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, 60);
   ga('export_panel_shown');
 }
@@ -618,7 +633,7 @@ function wire() {
   $('makeVertical')?.addEventListener('click', () => { applyViewMode('reel916'); ga('export_variant_clicked', { variant: 'portrait' }); exp(); });
   $('makeSlow')?.addEventListener('click', () => { applyPreset('meditation', 'success_panel'); ga('export_variant_clicked', { variant: 'meditation' }); exp(); });
 
-  for (const id of ['strict', 'max', 'rad', 'fly', 'travel', 'grow', 'zoom', 'dur']) {
+  for (const id of ['strict', 'max', 'rad', 'fly', 'travel', 'accel', 'starBright', 'grow', 'zoom', 'dur']) {
     const e = $(id); if (e) e.oninput = () => { read(); render088(S.last || 0); };
   }
   const mv = $('move'); if (mv) mv.oninput = () => { read(); if (window.DSD_RESELECT_MOVERS) window.DSD_RESELECT_MOVERS(); };

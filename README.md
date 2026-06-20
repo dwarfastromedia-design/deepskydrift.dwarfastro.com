@@ -4,9 +4,9 @@ DeepSkyDrift is a browser-local astrophotography motion tool for DwarfAstro.
 
 ## Current release
 
-Version: `0.9.3`
+Version: `0.9.4`
 
-This release keeps the clean runtime architecture and adds tier-aware star acceleration plus a Moving Star Brightness control.
+This release keeps the clean runtime architecture and adds the playback retargeting fix: changing the motion center while the animation is playing no longer freezes playback. It also widens the Travel Speed and Moving Star Brightness ranges.
 
 - `index.html` contains app markup only.
 - `style.css` owns layout and responsive styling.

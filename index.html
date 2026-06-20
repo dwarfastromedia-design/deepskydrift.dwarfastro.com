@@ -6,7 +6,7 @@
   <title>DeepSkyDrift | Create Motion Videos from Astrophotography Images</title>
   <meta name="description" content="Create cinematic motion videos from your astrophotography images. DeepSkyDrift runs locally in your browser and keeps your images on your device.">
   <link rel="canonical" href="https://deepskydrift.dwarfastro.com/">
-  <link rel="stylesheet" href="style.css?v=0.9.4">
+  <link rel="stylesheet" href="style.css?v=0.9.4-mobile-ad">
 </head>
 <body class="app-mode">
   <header class="app-header">
@@ -20,6 +20,10 @@
       <strong>DeepSkyDrift</strong>
       <span id="appVersion" class="appVer">v0.9.4</span>
       <span class="aiFree">AI-free app</span>
+    </div>
+    <div class="mobileHeaderActions" aria-label="Mobile actions">
+      <button id="mobilePlay" class="headerIconAction" type="button" aria-label="Play animation" disabled>▶</button>
+      <button id="mobileExport" class="headerIconAction" type="button" aria-label="Export movie" disabled>⬇</button>
     </div>
     <a class="visitTop" href="https://dwarfastro.com/" target="_blank" rel="noopener">Visit DwarfAstro.com</a>
   </header>
@@ -82,8 +86,10 @@
       </section>
 
       <section class="sec">
-        <div class="ttl">Duration & Size</div>
+        <div class="ttl">Output & Motion</div>
         <div class="row"><div class="head"><span>Duration</span><span id="tv" class="val">10s</span></div><input id="dur" type="range" min="5" max="60" step="5" value="10"></div>
+        <div class="row"><div class="head"><span>Travel Speed</span><span id="yv" class="val">1.00×</span></div><input id="travel" type="range" min="10" max="700" value="100"></div>
+        <div class="row"><div class="head"><span>Moving Star Brightness</span><span id="bv" class="val">1.00×</span></div><input id="starBright" type="range" min="25" max="300" value="100"></div>
         <select id="preset"><option value="portrait">Portrait 1080×1920</option><option value="landscape">Landscape 1920×1080</option><option value="square">Square 1080×1080</option></select>
         <p id="exinfo" class="tiny">Export target: 1080×1920 at ~30 fps · browser may downscale</p>
       </section>
@@ -93,9 +99,7 @@
         <section class="sec">
           <div class="ttl">Motion</div>
           <div class="row"><div class="head"><span>Star Distance</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div>
-          <div class="row"><div class="head"><span>Travel Speed</span><span id="yv" class="val">1.00×</span></div><input id="travel" type="range" min="10" max="700" value="100"></div>
           <div class="row"><div class="head"><span>Star Acceleration</span><span id="av" class="val">1.55×</span></div><input id="accel" type="range" min="105" max="220" value="155"></div>
-          <div class="row"><div class="head"><span>Moving Star Brightness</span><span id="bv" class="val">1.00×</span></div><input id="starBright" type="range" min="25" max="300" value="100"></div>
           <div class="row"><div class="head"><span>Star Growth</span><span id="gv" class="val">0.12×</span></div><input id="grow" type="range" min="0" max="80" value="12"></div>
           <div class="row"><div class="head"><span>Background Zoom</span><span id="zv" class="val">5%</span></div><input id="zoom" type="range" min="0" max="60" value="5"></div>
         </section>
@@ -121,7 +125,7 @@
     </aside>
   </div>
 
-  <div id="mobileActions" class="mobileActions"><button id="mobileLoad" class="loadBtn" type="button">Load Image</button><div class="actions2"><button id="mobilePlay" class="playBtn" type="button" disabled>▶ Play</button><button id="mobileExport" class="exportBtn" type="button" disabled>● Export</button></div></div>
+  <div id="mobileAdSpace" class="mobileAdSpace" aria-label="DwarfAstro mobile ad space"><img src="assets/dwarfastro-mobile-banner.svg" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time"></div>
 
   <button id="build" class="hiddenControl" type="button" disabled>Extract Stars</button><div id="stats" class="stat hiddenControl"></div><p id="centerNote" class="hiddenControl"></p>
   <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>

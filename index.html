@@ -6,7 +6,7 @@
   <title>DeepSkyDrift | Create Motion Videos from Astrophotography Images</title>
   <meta name="description" content="Create cinematic motion videos from your astrophotography images. DeepSkyDrift runs locally in your browser and keeps your images on your device.">
   <link rel="canonical" href="https://deepskydrift.dwarfastro.com/">
-  <link rel="stylesheet" href="style.css?v=0.9.2">
+  <link rel="stylesheet" href="style.css?v=0.9.3">
 </head>
 <body class="app-mode">
   <header class="app-header">
@@ -18,7 +18,7 @@
     <span class="barSep"></span>
     <div class="appTitle">
       <strong>DeepSkyDrift</strong>
-      <span id="appVersion" class="appVer">v0.9.2</span>
+      <span id="appVersion" class="appVer">v0.9.3</span>
       <span class="aiFree">AI-free app</span>
     </div>
     <a class="visitTop" href="https://dwarfastro.com/" target="_blank" rel="noopener">Visit DwarfAstro.com</a>
@@ -94,6 +94,8 @@
           <div class="ttl">Motion</div>
           <div class="row"><div class="head"><span>Star Distance</span><span id="fv" class="val">0.65×</span></div><input id="fly" type="range" min="5" max="180" value="65"></div>
           <div class="row"><div class="head"><span>Travel Speed</span><span id="yv" class="val">1.00×</span></div><input id="travel" type="range" min="25" max="400" value="100"></div>
+          <div class="row"><div class="head"><span>Star Acceleration</span><span id="av" class="val">1.55×</span></div><input id="accel" type="range" min="105" max="220" value="155"></div>
+          <div class="row"><div class="head"><span>Moving Star Brightness</span><span id="bv" class="val">1.00×</span></div><input id="starBright" type="range" min="50" max="175" value="100"></div>
           <div class="row"><div class="head"><span>Star Growth</span><span id="gv" class="val">0.12×</span></div><input id="grow" type="range" min="0" max="80" value="12"></div>
           <div class="row"><div class="head"><span>Background Zoom</span><span id="zv" class="val">5%</span></div><input id="zoom" type="range" min="0" max="60" value="5"></div>
         </section>
@@ -126,8 +128,8 @@
 
   <div id="cookieConsent" class="cookie-consent" role="dialog" aria-live="polite" aria-label="Cookie consent"><div class="cookie-copy">This site uses Google Analytics to understand how people use DeepSkyDrift. No personal data is collected and your images never leave your device.</div><div class="cookie-actions"><button id="cookieDecline" class="secondary" type="button">Decline</button><button id="cookieAccept" class="primary" type="button">Accept</button></div></div>
 
-  <script src="app.js?v=0.9.2"></script>
-  <script src="star-engine.js?v=0.9.2"></script>
-  <script src="consent.js?v=0.9.2"></script>
+  <script src="app.js?v=0.9.3"></script>
+  <script src="star-engine.js?v=0.9.3"></script>
+  <script src="consent.js?v=0.9.3"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const APP_VERSION = 'v0.9.3';
+const APP_VERSION = 'v0.9.4';
 const FPS = 30;
 const MAX_IMAGE_DIM = 1920;
 const $ = id => document.getElementById(id);
@@ -73,7 +73,7 @@ function wait(ms = 20) { return new Promise(r => setTimeout(r, ms)); }
 
 function st(v) {
   const e = $('status');
-  if (e) e.textContent = String(v).replace(/v0\.9\.2/g, APP_VERSION).replace(/0\.9\.2/g, '0.9.3').replace(/v0\.9\.1/g, APP_VERSION).replace(/0\.9\.1/g, '0.9.3').replace(/v0\.8\.\d/g, APP_VERSION).replace(/0\.8\.\d/g, '0.9.3');
+  if (e) e.textContent = String(v).replace(/v0\.9\.3/g, APP_VERSION).replace(/0\.9\.3/g, '0.9.4').replace(/v0\.9\.2/g, APP_VERSION).replace(/0\.9\.2/g, '0.9.4').replace(/v0\.9\.1/g, APP_VERSION).replace(/0\.9\.1/g, '0.9.4').replace(/v0\.8\.\d/g, APP_VERSION).replace(/0\.8\.\d/g, '0.9.4');
 }
 
 function ga(name, params = {}) {
@@ -182,7 +182,7 @@ function hash(id) {
 }
 
 function smooth(a, b, x) { x = cl((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); }
-function starPhase(s, t) { const rate = 0.20 * cl(S.travel || 1, 0.15, 5); return ((t || 0) * rate + (s.phase ?? hash(s.id))) % 1; }
+function starPhase(s, t) { const rate = 0.20 * cl(S.travel || 1, 0.10, 7); return ((t || 0) * rate + (s.phase ?? hash(s.id))) % 1; }
 function starVis(p) { return smooth(0, 0.01, p); }
 
 function tierDistance(s) { return s.tier === 3 ? 1.35 : s.tier === 2 ? 1.0 : 0.65; }
@@ -215,9 +215,9 @@ function drawMoving(g, s, r, w, h, t, alphaScale = 1, phase = null) {
   const scale = w / r.sw * spriteGrowth;
   const x = p0.x + v.dx * distance * p, y = p0.y + v.dy * distance * p;
   if (x < -340 || y < -340 || x > w + 340 || y > h + 340) return;
-  const userBright = cl(S.starBright || 1, 0.35, 2.25), tBright = tierBright(s);
+  const userBright = cl(S.starBright || 1, 0.25, 3.0), tBright = tierBright(s);
   const alpha = cl(vis * alphaScale * userBright * tBright, 0, 1);
-  const filterBright = cl(1.75 + 0.55 * userBright * tBright, 1.35, 3.35);
+  const filterBright = cl(1.55 + 0.65 * userBright * tBright, 1.2, 4.2);
   g.save();
   g.globalAlpha *= alpha;
   g.globalCompositeOperation = 'lighter';
@@ -382,7 +382,7 @@ function showSuccess(name) {
   if (!s) return;
   s.classList.add('show');
   const n = $('successName');
-  if (n) n.textContent = String(name || S.lastExportName || 'movie').replace(/v0\.9\.2/g, APP_VERSION).replace(/v0\.9\.1/g, APP_VERSION).replace(/v0\.8\.\d/g, APP_VERSION);
+  if (n) n.textContent = String(name || S.lastExportName || 'movie').replace(/v0\.9\.3/g, APP_VERSION).replace(/v0\.9\.2/g, APP_VERSION).replace(/v0\.9\.1/g, APP_VERSION).replace(/v0\.8\.\d/g, APP_VERSION);
   setTimeout(() => { try { s.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, 60);
   ga('export_panel_shown');
 }
@@ -543,13 +543,19 @@ function canvasSourcePoint(e) {
 function center(e) {
   const p = canvasSourcePoint(e);
   if (!p) return;
+  const wasPlaying = !!S.play;
   S.motionCx = S.cx = cl(p.x / S.src.width, 0.04, 0.96);
   S.motionCy = S.cy = cl(p.y / S.src.height, 0.04, 0.96);
-  S.anchorPreview = 1;
-  S.last = 0;
-  S.start = 0;
-  render088(0);
-  ga('center_set', { cx: Number(S.motionCx.toFixed(3)), cy: Number(S.motionCy.toFixed(3)), view_mode: S.viewMode });
+  if (wasPlaying) {
+    S.anchorPreview = 0;
+    render088(S.last || 0);
+  } else {
+    S.anchorPreview = 1;
+    S.last = 0;
+    S.start = 0;
+    render088(0);
+  }
+  ga('center_set', { cx: Number(S.motionCx.toFixed(3)), cy: Number(S.motionCy.toFixed(3)), view_mode: S.viewMode, playing: wasPlaying });
   st('Motion center set');
 }
 

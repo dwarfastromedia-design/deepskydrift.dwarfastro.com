@@ -1,11 +1,21 @@
 (function(){
-  const UI_VERSION = 'v0.9.6';
+  const UI_VERSION = 'v0.9.7';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
 
   function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
   function smooth(x){ x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+
+  function loadMotionCleanup(){
+    try {
+      if (document.getElementById('dsdMotionCleanupScript')) return;
+      const script = document.createElement('script');
+      script.id = 'dsdMotionCleanupScript';
+      script.src = 'motion-cleanup.js?v=0.9.7';
+      document.head.appendChild(script);
+    } catch(e) {}
+  }
 
   function injectProgressStyle(){
     if (document.getElementById('dsdProgressStyle')) return;
@@ -103,6 +113,7 @@
 
   function syncHeaderIcons(){
     installStableZoom();
+    loadMotionCleanup();
     const version = document.getElementById('appVersion');
     if (version) version.textContent = UI_VERSION;
     const play = document.getElementById('play');

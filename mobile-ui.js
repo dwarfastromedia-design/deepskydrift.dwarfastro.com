@@ -7,6 +7,14 @@
   function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
   function smooth(x){ x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
 
+  function injectProgressStyle(){
+    if (document.getElementById('dsdProgressStyle')) return;
+    const style = document.createElement('style');
+    style.id = 'dsdProgressStyle';
+    style.textContent = '.playProgress{position:absolute;left:12px;right:12px;bottom:36px;z-index:7;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;opacity:0;transform:translateY(4px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}.playProgress.active{opacity:1;transform:translateY(0)}.playProgressTrack{height:4px;background:#1b2a3bcc;border-radius:999px;overflow:hidden;box-shadow:0 0 0 1px #0008}.playProgressFill{height:100%;width:0;background:#7cc8ff;border-radius:999px;box-shadow:0 0 10px #7cc8ff88}.playProgressTime{font:9px monospace;color:#b8c7da;text-shadow:0 1px 4px #000;white-space:nowrap;letter-spacing:.05em}@media(max-width:700px) and (orientation:portrait){.playProgress{left:10px;right:10px;bottom:34px}.playProgressTime{font-size:8px}}@media(max-width:950px) and (max-height:520px) and (orientation:landscape){.playProgress{left:10px;right:10px;bottom:28px}.playProgressTrack{height:3px}.playProgressTime{font-size:8px}}';
+    document.head.appendChild(style);
+  }
+
   function setIcon(button, icon, label){
     if (!button) return;
     if (button.dataset.icon !== label) {
@@ -46,6 +54,7 @@
   }
 
   function ensureProgressBar(){
+    injectProgressStyle();
     let bar = document.getElementById('playProgress');
     if (bar) return bar;
     const main = document.querySelector('main');

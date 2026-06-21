@@ -7,6 +7,7 @@
   <meta name="description" content="Create cinematic motion videos from your astrophotography images. DeepSkyDrift runs locally in your browser and keeps your images on your device.">
   <link rel="canonical" href="https://deepskydrift.dwarfastro.com/">
   <link rel="stylesheet" href="style.css?v=0.9.4-mobile-ad">
+  <link rel="stylesheet" href="mobile-ui.css?v=0.9.4-mobile-icons">
 </head>
 <body class="app-mode">
   <header class="app-header">
@@ -22,8 +23,8 @@
       <span class="aiFree">AI-free app</span>
     </div>
     <div class="mobileHeaderActions" aria-label="Mobile actions">
-      <button id="mobilePlay" class="headerIconAction" type="button" aria-label="Play animation" disabled>▶</button>
-      <button id="mobileExport" class="headerIconAction" type="button" aria-label="Export movie" disabled>⬇</button>
+      <button id="mobilePlay" class="headerIconAction" type="button" aria-label="Play animation" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg></button>
+      <button id="mobileExport" class="headerIconAction" type="button" aria-label="Export or share movie" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg></button>
     </div>
     <a class="visitTop" href="https://dwarfastro.com/" target="_blank" rel="noopener">Visit DwarfAstro.com</a>
   </header>
@@ -125,7 +126,7 @@
     </aside>
   </div>
 
-  <div id="mobileAdSpace" class="mobileAdSpace" aria-label="DwarfAstro mobile ad space"><img src="assets/dwarfastro-mobile-banner.svg" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time"></div>
+  <div id="mobileAdSpace" class="mobileAdSpace" aria-label="DwarfAstro mobile ad space"><img src="assets/dwarfastro-mobile-banner.svg?v=0.9.4-mobile-icons" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time"></div>
 
   <button id="build" class="hiddenControl" type="button" disabled>Extract Stars</button><div id="stats" class="stat hiddenControl"></div><p id="centerNote" class="hiddenControl"></p>
   <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
@@ -133,6 +134,7 @@
   <div id="cookieConsent" class="cookie-consent" role="dialog" aria-live="polite" aria-label="Cookie consent"><div class="cookie-copy">This site uses Google Analytics to understand how people use DeepSkyDrift. No personal data is collected and your images never leave your device.</div><div class="cookie-actions"><button id="cookieDecline" class="secondary" type="button">Decline</button><button id="cookieAccept" class="primary" type="button">Accept</button></div></div>
 
   <script src="app.js?v=0.9.4"></script>
+  <script src="mobile-ui.js?v=0.9.4-mobile-icons"></script>
   <script src="star-engine.js?v=0.9.4"></script>
   <script src="consent.js?v=0.9.4"></script>
 </body>

@@ -1,8 +1,9 @@
 {
-  "version": "0.9.4",
-  "cacheKey": "0.9.4-mobile-icons",
+  "version": "0.9.5",
+  "cacheKey": "0.9.5-mobile-landscape",
   "engine": "star-engine.js",
   "app": "app.js",
   "mobileUi": "mobile-ui.js",
+  "mobileLandscape": "mobile-landscape.css",
   "consent": "consent.js"
 }

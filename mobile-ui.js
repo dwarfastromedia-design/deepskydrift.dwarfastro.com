@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.7';
+  const UI_VERSION = 'v0.9.8';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -9,10 +9,12 @@
 
   function loadMotionCleanup(){
     try {
-      if (document.getElementById('dsdMotionCleanupScript')) return;
+      const old = document.getElementById('dsdMotionCleanupScript');
+      if (old && old.getAttribute('src') === 'motion-cleanup.js?v=0.9.8') return;
+      if (old) old.remove();
       const script = document.createElement('script');
       script.id = 'dsdMotionCleanupScript';
-      script.src = 'motion-cleanup.js?v=0.9.7';
+      script.src = 'motion-cleanup.js?v=0.9.8';
       document.head.appendChild(script);
     } catch(e) {}
   }

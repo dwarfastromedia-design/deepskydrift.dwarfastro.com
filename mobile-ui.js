@@ -1,8 +1,11 @@
 (function(){
-  const UI_VERSION = 'v0.9.5';
+  const UI_VERSION = 'v0.9.6';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
+
+  function clamp(x, a, b){ return Math.max(a, Math.min(b, x)); }
+  function smooth(x){ x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
 
   function setIcon(button, icon, label){
     if (!button) return;
@@ -14,7 +17,83 @@
     button.setAttribute('title', label);
   }
 
+  function installStableZoom(){
+    try {
+      if (window.__DSD_STABLE_ZOOM_INSTALLED__) return;
+      const originalSrcRect = srcRect;
+      if (typeof originalSrcRect !== 'function') return;
+      srcRect = function(img, W, H, t = 0){
+        if (!img) return originalSrcRect(img, W, H, t);
+        const dur = Math.max(1, (typeof S !== 'undefined' && S.dur) ? S.dur : 10);
+        const zoom = (typeof S !== 'undefined' && S.zoom) ? S.zoom : 0;
+        const z = 1 + zoom * smooth((t || 0) / dur);
+        const ia = img.width / img.height, oa = W / H;
+        let bw, bh;
+        if (ia > oa) { bh = img.height; bw = bh * oa; } else { bw = img.width; bh = bw / oa; }
+        const sw = bw / z, sh = bh / z;
+        const fx = (typeof frameX === 'function') ? frameX() : 0.5;
+        const fy = (typeof frameY === 'function') ? frameY() : 0.5;
+        const cx = fx * img.width, cy = fy * img.height;
+        return {
+          sx: clamp(cx - sw / 2, 0, Math.max(0, img.width - sw)),
+          sy: clamp(cy - sh / 2, 0, Math.max(0, img.height - sh)),
+          sw,
+          sh
+        };
+      };
+      window.__DSD_STABLE_ZOOM_INSTALLED__ = true;
+    } catch(e) {}
+  }
+
+  function ensureProgressBar(){
+    let bar = document.getElementById('playProgress');
+    if (bar) return bar;
+    const main = document.querySelector('main');
+    if (!main) return null;
+    bar = document.createElement('div');
+    bar.id = 'playProgress';
+    bar.className = 'playProgress';
+    bar.innerHTML = '<div class="playProgressTrack"><div id="playProgressFill" class="playProgressFill"></div></div><div id="playProgressTime" class="playProgressTime">0:00 / 0:00</div>';
+    main.appendChild(bar);
+    return bar;
+  }
+
+  function fmt(seconds){
+    seconds = Math.max(0, Math.floor(seconds || 0));
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function updateProgressBar(){
+    const bar = ensureProgressBar();
+    if (!bar) return;
+    let playing = false, elapsed = 0, dur = 0, hasImage = false;
+    try {
+      hasImage = !!(typeof S !== 'undefined' && S.src);
+      playing = !!(typeof S !== 'undefined' && S.play);
+      dur = Math.max(0, Number(S.dur || 0));
+      elapsed = Math.max(0, Number(S.last || 0));
+    } catch(e) {}
+    if (!hasImage || !dur) {
+      bar.classList.remove('active');
+      const fill0 = document.getElementById('playProgressFill');
+      const time0 = document.getElementById('playProgressTime');
+      if (fill0) fill0.style.width = '0%';
+      if (time0) time0.textContent = '0:00 / 0:00';
+      return;
+    }
+    const loopElapsed = playing ? (elapsed % dur) : Math.min(elapsed, dur);
+    const pct = dur ? clamp(loopElapsed / dur, 0, 1) * 100 : 0;
+    const fill = document.getElementById('playProgressFill');
+    const time = document.getElementById('playProgressTime');
+    if (fill) fill.style.width = pct.toFixed(2) + '%';
+    if (time) time.textContent = fmt(loopElapsed) + ' / ' + fmt(dur);
+    bar.classList.toggle('active', playing || loopElapsed > 0);
+  }
+
   function syncHeaderIcons(){
+    installStableZoom();
     const version = document.getElementById('appVersion');
     if (version) version.textContent = UI_VERSION;
     const play = document.getElementById('play');
@@ -30,10 +109,11 @@
       mobileExport.disabled = exportBtn ? exportBtn.disabled : mobileExport.disabled;
       setIcon(mobileExport, shareIcon, 'Export or share movie');
     }
+    updateProgressBar();
   }
 
   try { window.syncMobileActions = syncHeaderIcons; } catch(e) {}
   document.addEventListener('DOMContentLoaded', syncHeaderIcons);
   window.addEventListener('load', syncHeaderIcons);
-  setInterval(syncHeaderIcons, 250);
+  setInterval(syncHeaderIcons, 120);
 })();

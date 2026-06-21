@@ -1,7 +1,8 @@
 {
   "version": "0.9.4",
-  "cacheKey": "0.9.4-mobile-ad",
+  "cacheKey": "0.9.4-mobile-icons",
   "engine": "star-engine.js",
   "app": "app.js",
+  "mobileUi": "mobile-ui.js",
   "consent": "consent.js"
 }

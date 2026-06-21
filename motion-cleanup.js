@@ -1,20 +1,51 @@
 (function(){
-  const VERSION = 'v0.9.7';
+  const VERSION = 'v0.9.8';
   function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
   function ease(x){ x = clamp(x,0,1); return x*x*(3-2*x); }
+  function fract(x){ return x - Math.floor(x); }
+  function hash01(n){ return fract(Math.sin(n * 12.9898 + 78.233) * 43758.5453123); }
+  function starSeed(s,i){
+    const x = Number(s.x || 0), y = Number(s.y || 0);
+    const r = Number(s.r || s.radius || 0);
+    const b = Number(s.b || s.flux || s.brightness || s.snr || 0);
+    return x * 0.754877666 + y * 0.569840296 + r * 0.438289623 + b * 0.228459041 + i * 0.1234567;
+  }
+  function profile(s,i){
+    if (s.__motionProfile098) return s.__motionProfile098;
+    const seed = starSeed(s,i);
+    const cooldown = 0.08 + hash01(seed + 1.71) * 0.18;
+    s.__motionProfile098 = {
+      phaseOffset: hash01(seed + 0.11),
+      cooldown,
+      activeSpan: 1 - cooldown,
+      speed: 0.92 + hash01(seed + 2.37) * 0.22,
+      brightness: 0.92 + hash01(seed + 3.19) * 0.22
+    };
+    return s.__motionProfile098;
+  }
+  function life(s,t,dur,i){
+    const p = profile(s,i);
+    const cycle = (((t || 0) / Math.max(1,dur)) * p.speed + p.phaseOffset) % 1;
+    if (cycle > p.activeSpan) return null;
+    const q = cycle / p.activeSpan;
+    const fadeIn = ease(q / 0.06);
+    const fadeOut = 1 - ease((q - 0.82) / 0.18);
+    const alpha = clamp(Math.min(fadeIn, fadeOut), 0, 1) * p.brightness;
+    return alpha > 0.01 ? { phase:q, alpha } : null;
+  }
   function install(){
     try {
-      if (window.__DSD_MOTION_CLEANUP_097__) return;
-      if (typeof drawMoving !== 'function' || typeof drawStatic !== 'function' || typeof starPhase !== 'function' || typeof srcRect !== 'function') return;
+      if (window.__DSD_MOTION_CLEANUP_098__) return;
+      if (typeof drawMoving !== 'function' || typeof drawStatic !== 'function' || typeof srcRect !== 'function') return;
       drawStars = function(g, list, r, w, h, t, moving = false, boost = false){
         if (!list || !list.length) return;
-        for (const s of list) {
+        const dur = Math.max(1, (typeof S !== 'undefined' && S.dur) ? S.dur : 10);
+        for (let i=0; i<list.length; i++) {
+          const s = list[i];
           if (!moving) { drawStatic(g, s, r, w, h, boost); continue; }
           if (S && S.anchorPreview) { drawMoving(g, s, r, w, h, 0, 1, 0); continue; }
-          const p = starPhase(s, t);
-          const fadeOut = 1 - ease((p - 0.82) / 0.16);
-          const alpha = clamp(fadeOut, 0, 1);
-          if (alpha > 0.01) drawMoving(g, s, r, w, h, t, alpha, p);
+          const l = life(s, t, dur, i);
+          if (l) drawMoving(g, s, r, w, h, t, l.alpha, l.phase);
         }
       };
       if (typeof drawFrame088 === 'function') {
@@ -36,7 +67,7 @@
       }
       const v = document.getElementById('appVersion');
       if (v) v.textContent = VERSION;
-      window.__DSD_MOTION_CLEANUP_097__ = true;
+      window.__DSD_MOTION_CLEANUP_098__ = true;
     } catch(e) {}
   }
   install();

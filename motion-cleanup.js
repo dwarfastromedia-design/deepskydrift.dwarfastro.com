@@ -1,5 +1,6 @@
 (function(){
-  const VERSION = 'v0.9.8';
+  const VERSION = 'v0.9.9';
+  const BASE_CYCLE_SECONDS = 10;
   function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
   function ease(x){ x = clamp(x,0,1); return x*x*(3-2*x); }
   function fract(x){ return x - Math.floor(x); }
@@ -10,22 +11,25 @@
     const b = Number(s.b || s.flux || s.brightness || s.snr || 0);
     return x * 0.754877666 + y * 0.569840296 + r * 0.438289623 + b * 0.228459041 + i * 0.1234567;
   }
+  function travelSpeed(){
+    try { return clamp(Number(S && S.travel ? S.travel : 1), 0.1, 7); } catch(e) { return 1; }
+  }
   function profile(s,i){
-    if (s.__motionProfile098) return s.__motionProfile098;
+    if (s.__motionProfile099) return s.__motionProfile099;
     const seed = starSeed(s,i);
     const cooldown = 0.08 + hash01(seed + 1.71) * 0.18;
-    s.__motionProfile098 = {
+    s.__motionProfile099 = {
       phaseOffset: hash01(seed + 0.11),
       cooldown,
       activeSpan: 1 - cooldown,
       speed: 0.92 + hash01(seed + 2.37) * 0.22,
       brightness: 0.92 + hash01(seed + 3.19) * 0.22
     };
-    return s.__motionProfile098;
+    return s.__motionProfile099;
   }
-  function life(s,t,dur,i){
+  function life(s,t,i){
     const p = profile(s,i);
-    const cycle = (((t || 0) / Math.max(1,dur)) * p.speed + p.phaseOffset) % 1;
+    const cycle = (((t || 0) * travelSpeed() / BASE_CYCLE_SECONDS) * p.speed + p.phaseOffset) % 1;
     if (cycle > p.activeSpan) return null;
     const q = cycle / p.activeSpan;
     const fadeIn = ease(q / 0.06);
@@ -35,16 +39,15 @@
   }
   function install(){
     try {
-      if (window.__DSD_MOTION_CLEANUP_098__) return;
+      if (window.__DSD_MOTION_CLEANUP_099__) return;
       if (typeof drawMoving !== 'function' || typeof drawStatic !== 'function' || typeof srcRect !== 'function') return;
       drawStars = function(g, list, r, w, h, t, moving = false, boost = false){
         if (!list || !list.length) return;
-        const dur = Math.max(1, (typeof S !== 'undefined' && S.dur) ? S.dur : 10);
         for (let i=0; i<list.length; i++) {
           const s = list[i];
           if (!moving) { drawStatic(g, s, r, w, h, boost); continue; }
           if (S && S.anchorPreview) { drawMoving(g, s, r, w, h, 0, 1, 0); continue; }
-          const l = life(s, t, dur, i);
+          const l = life(s, t, i);
           if (l) drawMoving(g, s, r, w, h, t, l.alpha, l.phase);
         }
       };
@@ -67,7 +70,7 @@
       }
       const v = document.getElementById('appVersion');
       if (v) v.textContent = VERSION;
-      window.__DSD_MOTION_CLEANUP_098__ = true;
+      window.__DSD_MOTION_CLEANUP_099__ = true;
     } catch(e) {}
   }
   install();

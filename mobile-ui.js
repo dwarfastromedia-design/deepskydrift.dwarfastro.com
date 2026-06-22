@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.9';
+  const UI_VERSION = 'v0.9.10';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -23,7 +23,7 @@
     if (document.getElementById('dsdProgressStyle')) return;
     const style = document.createElement('style');
     style.id = 'dsdProgressStyle';
-    style.textContent = '.playProgress{position:absolute;left:12px;right:12px;bottom:36px;z-index:7;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;opacity:0;transform:translateY(4px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}.playProgress.active{opacity:1;transform:translateY(0)}.playProgressTrack{height:4px;background:#1b2a3bcc;border-radius:999px;overflow:hidden;box-shadow:0 0 0 1px #0008}.playProgressFill{height:100%;width:0;background:#7cc8ff;border-radius:999px;box-shadow:0 0 10px #7cc8ff88}.playProgressTime{font:9px monospace;color:#b8c7da;text-shadow:0 1px 4px #000;white-space:nowrap;letter-spacing:.05em}@media(max-width:700px) and (orientation:portrait){.playProgress{left:10px;right:10px;bottom:34px}.playProgressTime{font-size:8px}}@media(max-width:950px) and (max-height:520px) and (orientation:landscape){.playProgress{left:10px;right:10px;bottom:28px}.playProgressTrack{height:3px}.playProgressTime{font-size:8px}}';
+    style.textContent = '.view{position:relative}.playProgress{position:absolute;left:12px;right:12px;bottom:12px;z-index:7;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;opacity:0;transform:translateY(4px);transition:opacity .18s ease,transform .18s ease;pointer-events:none}.playProgress.active{opacity:1;transform:translateY(0)}.playProgressTrack{height:4px;background:#1b2a3bcc;border-radius:999px;overflow:hidden;box-shadow:0 0 0 1px #0008}.playProgressFill{height:100%;width:0;background:#7cc8ff;border-radius:999px;box-shadow:0 0 10px #7cc8ff88}.playProgressTime{font:9px monospace;color:#dce7f7;text-shadow:0 1px 4px #000;white-space:nowrap;letter-spacing:.05em}@media(max-width:700px) and (orientation:portrait){.playProgress{left:10px;right:10px;bottom:10px}.playProgressTime{font-size:8px}}@media(max-width:950px) and (max-height:520px) and (orientation:landscape){.playProgress{left:10px;right:10px;bottom:8px}.playProgressTrack{height:3px}.playProgressTime{font-size:8px}}';
     document.head.appendChild(style);
   }
 
@@ -35,6 +35,33 @@
     }
     button.setAttribute('aria-label', label);
     button.setAttribute('title', label);
+  }
+
+  function setActionButton(button, icon, label){
+    if (!button) return;
+    const key = 'action-' + label;
+    if (button.dataset.icon !== key) {
+      button.innerHTML = icon + '<span>' + label + '</span>';
+      button.dataset.icon = key;
+    }
+    button.setAttribute('aria-label', label);
+    button.setAttribute('title', label);
+  }
+
+  function installDesktopBanner(){
+    try {
+      const main = document.querySelector('main');
+      if (!main) return;
+      let banner = document.getElementById('desktopAdSpace');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'desktopAdSpace';
+        banner.className = 'desktopAdSpace';
+        banner.setAttribute('aria-label', 'DwarfAstro banner ad space');
+        banner.innerHTML = '<img src="assets/dwarfastro-mobile-banner.JPG?v=0.9.10-desktop-banner" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
+        main.appendChild(banner);
+      }
+    } catch(e) {}
   }
 
   function installStableZoom(){
@@ -67,15 +94,16 @@
 
   function ensureProgressBar(){
     injectProgressStyle();
+    const view = document.querySelector('.view');
+    if (!view) return null;
     let bar = document.getElementById('playProgress');
+    if (bar && bar.parentElement !== view) view.appendChild(bar);
     if (bar) return bar;
-    const main = document.querySelector('main');
-    if (!main) return null;
     bar = document.createElement('div');
     bar.id = 'playProgress';
     bar.className = 'playProgress';
     bar.innerHTML = '<div class="playProgressTrack"><div id="playProgressFill" class="playProgressFill"></div></div><div id="playProgressTime" class="playProgressTime">0:00 / 0:00</div>';
-    main.appendChild(bar);
+    view.appendChild(bar);
     return bar;
   }
 
@@ -150,6 +178,7 @@
   function syncHeaderIcons(){
     installStableZoom();
     installAutoPause();
+    installDesktopBanner();
     loadMotionCleanup();
     const version = document.getElementById('appVersion');
     if (version) version.textContent = UI_VERSION;
@@ -157,10 +186,12 @@
     const exportBtn = document.getElementById('export');
     const mobilePlay = document.getElementById('mobilePlay');
     const mobileExport = document.getElementById('mobileExport');
-    const isPausedState = play && /pause/i.test(play.textContent || '');
+    const isPlaying = !!(typeof S !== 'undefined' && S && S.play);
+    if (play) setActionButton(play, isPlaying ? pauseIcon : playIcon, isPlaying ? 'Pause' : 'Play');
+    if (exportBtn) setActionButton(exportBtn, shareIcon, 'Export');
     if (mobilePlay) {
       mobilePlay.disabled = play ? play.disabled : mobilePlay.disabled;
-      setIcon(mobilePlay, isPausedState ? pauseIcon : playIcon, isPausedState ? 'Pause animation' : 'Play animation');
+      setIcon(mobilePlay, isPlaying ? pauseIcon : playIcon, isPlaying ? 'Pause animation' : 'Play animation');
     }
     if (mobileExport) {
       mobileExport.disabled = exportBtn ? exportBtn.disabled : mobileExport.disabled;

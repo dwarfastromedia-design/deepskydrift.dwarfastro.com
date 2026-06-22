@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.8';
+  const UI_VERSION = 'v0.9.9';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -10,11 +10,11 @@
   function loadMotionCleanup(){
     try {
       const old = document.getElementById('dsdMotionCleanupScript');
-      if (old && old.getAttribute('src') === 'motion-cleanup.js?v=0.9.8') return;
+      if (old && old.getAttribute('src') === 'motion-cleanup.js?v=0.9.9') return;
       if (old) old.remove();
       const script = document.createElement('script');
       script.id = 'dsdMotionCleanupScript';
-      script.src = 'motion-cleanup.js?v=0.9.8';
+      script.src = 'motion-cleanup.js?v=0.9.9';
       document.head.appendChild(script);
     } catch(e) {}
   }
@@ -113,8 +113,43 @@
     bar.classList.toggle('active', playing || loopElapsed > 0);
   }
 
+  function stopPlaybackForSettingChange(){
+    try {
+      if (!S || !S.play) return;
+      S.play = 0;
+      if (S.raf) cancelAnimationFrame(S.raf);
+      S.raf = 0;
+      S.start = 0;
+      const play = document.getElementById('play');
+      if (play) play.textContent = '▶ Play';
+      const dur = Math.max(0, Number(S.dur || 0));
+      if (dur && S.last > dur) S.last = dur;
+      setTimeout(function(){
+        try { if (typeof render088 === 'function') render088(S.last || 0); } catch(e) {}
+        try { updateProgressBar(); } catch(e) {}
+      }, 0);
+    } catch(e) {}
+  }
+
+  function isSettingsTarget(el){
+    if (!el || !el.closest) return false;
+    return !!el.closest('#dur,#travel,#starBright,#fly,#accel,#grow,#zoom,#strict,#max,#move,#rad,#bias,#preset,#preview,#centerToggle,[data-preset-key],[data-intensity],[data-view-mode]');
+  }
+
+  function installAutoPause(){
+    if (window.__DSD_AUTOPAUSE_099__) return;
+    const handler = function(ev){
+      if (isSettingsTarget(ev.target)) stopPlaybackForSettingChange();
+    };
+    document.addEventListener('input', handler, true);
+    document.addEventListener('change', handler, true);
+    document.addEventListener('click', handler, true);
+    window.__DSD_AUTOPAUSE_099__ = true;
+  }
+
   function syncHeaderIcons(){
     installStableZoom();
+    installAutoPause();
     loadMotionCleanup();
     const version = document.getElementById('appVersion');
     if (version) version.textContent = UI_VERSION;

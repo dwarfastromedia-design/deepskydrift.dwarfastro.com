@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.10';
+  const UI_VERSION = 'v0.9.11';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -58,9 +58,9 @@
         banner.id = 'desktopAdSpace';
         banner.className = 'desktopAdSpace';
         banner.setAttribute('aria-label', 'DwarfAstro banner ad space');
-        banner.innerHTML = '<img src="assets/dwarfastro-mobile-banner.JPG?v=0.9.10-desktop-banner" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
         main.appendChild(banner);
       }
+      banner.innerHTML = '<img src="assets/dwarfastro-banner-728x90.PNG?v=0.9.11-left-logo" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
     } catch(e) {}
   }
 

@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.13';
+  const UI_VERSION = 'v0.9.14';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -72,7 +72,17 @@
         banner.setAttribute('aria-label', 'DwarfAstro banner ad space');
         main.appendChild(banner);
       }
-      banner.innerHTML = '<img src="assets/dwarfastro-banner-728x90.PNG?v=0.9.11-left-logo" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
+      banner.innerHTML = '<img src="assets/dwarfastro-banner-728x90.PNG?v=0.9.14-banner-mode" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
+    } catch(e) {}
+  }
+
+  function syncBannerModeClass(){
+    try {
+      const app = document.getElementById('app');
+      if (!app || typeof S === 'undefined' || !S) return;
+      app.classList.remove('banner-original-view', 'banner-reel-view');
+      if (S.viewMode === 'reel916') app.classList.add('banner-reel-view');
+      else app.classList.add('banner-original-view');
     } catch(e) {}
   }
 
@@ -193,6 +203,7 @@
     installDesktopBanner();
     loadMotionCleanup();
     loadExportFix();
+    syncBannerModeClass();
     const version = document.getElementById('appVersion');
     if (version) version.textContent = window.__DSD_EXPORT_FIX_VERSION__ || UI_VERSION;
     const play = document.getElementById('play');

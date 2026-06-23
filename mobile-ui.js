@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.11';
+  const UI_VERSION = 'v0.9.12';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -15,6 +15,18 @@
       const script = document.createElement('script');
       script.id = 'dsdMotionCleanupScript';
       script.src = 'motion-cleanup.js?v=0.9.9';
+      document.head.appendChild(script);
+    } catch(e) {}
+  }
+
+  function loadExportFix(){
+    try {
+      const old = document.getElementById('dsdExportFixScript');
+      if (old && old.getAttribute('src') === 'export-fix.js?v=0.9.12') return;
+      if (old) old.remove();
+      const script = document.createElement('script');
+      script.id = 'dsdExportFixScript';
+      script.src = 'export-fix.js?v=0.9.12';
       document.head.appendChild(script);
     } catch(e) {}
   }
@@ -180,8 +192,9 @@
     installAutoPause();
     installDesktopBanner();
     loadMotionCleanup();
+    loadExportFix();
     const version = document.getElementById('appVersion');
-    if (version) version.textContent = UI_VERSION;
+    if (version) version.textContent = window.__DSD_EXPORT_FIX_VERSION__ || UI_VERSION;
     const play = document.getElementById('play');
     const exportBtn = document.getElementById('export');
     const mobilePlay = document.getElementById('mobilePlay');

@@ -1,5 +1,5 @@
 (function(){
-  const UI_VERSION = 'v0.9.14';
+  const UI_VERSION = 'v0.9.15';
   const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/></svg>';
   const pauseIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" stroke="none"/></svg>';
   const shareIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M6 12v8h12v-8"/></svg>';
@@ -60,6 +60,32 @@
     button.setAttribute('title', label);
   }
 
+  function applyBannerInlineLayout(banner){
+    try {
+      if (!banner) return;
+      const img = banner.querySelector('img');
+      const isReel = !!(typeof S !== 'undefined' && S && S.viewMode === 'reel916');
+      banner.style.display = 'flex';
+      banner.style.alignItems = 'center';
+      banner.style.justifyContent = 'center';
+      banner.style.flex = isReel ? '0 0 94px' : '0 0 124px';
+      banner.style.height = isReel ? '94px' : '124px';
+      banner.style.minHeight = isReel ? '94px' : '124px';
+      banner.style.maxHeight = isReel ? '94px' : '124px';
+      banner.style.padding = isReel ? '6px 10px' : '6px 10px';
+      banner.style.overflow = 'hidden';
+      if (img) {
+        img.style.display = 'block';
+        img.style.height = isReel ? '78px' : '112px';
+        img.style.width = 'auto';
+        img.style.maxWidth = 'calc(100% - 12px)';
+        img.style.maxHeight = isReel ? '78px' : '112px';
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'center';
+      }
+    } catch(e) {}
+  }
+
   function installDesktopBanner(){
     try {
       const main = document.querySelector('main');
@@ -72,7 +98,12 @@
         banner.setAttribute('aria-label', 'DwarfAstro banner ad space');
         main.appendChild(banner);
       }
-      banner.innerHTML = '<img src="assets/dwarfastro-banner-728x90.PNG?v=0.9.14-banner-mode" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
+      const src = 'assets/dwarfastro-banner-728x90.PNG?v=0.9.15-leaderboard-fit';
+      const existing = banner.querySelector('img');
+      if (!existing || !existing.getAttribute('src') || existing.getAttribute('src') !== src) {
+        banner.innerHTML = '<img src="' + src + '" alt="DwarfAstro — Backyard Deep Sky, One Photon at a Time">';
+      }
+      applyBannerInlineLayout(banner);
     } catch(e) {}
   }
 
